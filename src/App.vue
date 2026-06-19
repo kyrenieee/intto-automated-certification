@@ -1,4 +1,7 @@
 <script setup>
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+
 import HelloWorld from './components/HelloWorld.vue/index.js'
 import TheWelcome from './components/TheWelcome.vue'
 </script>
