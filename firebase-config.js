@@ -1,12 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-
-import './assets/main.css'
-
-import { createApp } from 'vue'
-import App from './assets/App.vue/index.js'
-
-createApp(App).mount('#app')
+import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDWVm1dTAa0Uu_e3_AIw6dh0F5b4fEFhmc",
@@ -18,6 +11,5 @@ const firebaseConfig = {
   measurementId: "G-E0N0GVFRJL"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
