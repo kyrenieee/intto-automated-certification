@@ -5,6 +5,8 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import App from './assets/App.vue/index.js'
+import LiquidGlass from '@wxperia/liquid-glass-vue'
+
 
 createApp(App).mount('#app')
 
@@ -19,5 +21,9 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+// const app = initializeApp(firebaseConfig);
+// const analytics = getAnalytics(app);
+
+const app = createApp(App)
+app.use(LiquidGlass)
+app.mount('#app')
