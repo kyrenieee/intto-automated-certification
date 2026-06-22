@@ -12,10 +12,11 @@
     "@tailwindcss/vite": "^4.3.1",
     "@wxperia/liquid-glass-vue": "^1.0.9",
     "firebase": "^12.15.0",
+    "pinia": "^3.0.4",
     "tailwindcss": "^4.3.1",
     "vue": "^3.5.32",
     "vue-qr": "^5.0.3",
-    "vuefire": "^3.2.3"
+    "vue-router": "^5.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.6",
