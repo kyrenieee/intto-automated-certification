@@ -14,44 +14,44 @@ export const useDocuStore = defineStore('document', async () => {
     const docuCollectionRef = collection(db, 'documents') 
     // collection - bucket in the database that is used to store the documents
 
-    // try {
-    // const docRef = await addDoc(collection(db, "users"), {
-    // // collection accpets two parameters, the first is the database and the second is the name of the collection that is being created
-    //     first: "Lark",
-    //     last: "Orillos",
-    //     born: 2001
-    // });
-    // console.log("Document written with ID: ", docRef.id);
-    // } catch (e) {
-    // console.error("Error adding document: ", e);
+        // try {
+        // const docRef = await addDoc(collection(db, "users"), {
+        // // collection accpets two parameters, the first is the database and the second is the name of the collection that is being created
+        //     first: "Miguel",
+        //     last: "Gumiran",
+        //     born: 2004
+        // });
+        // console.log("Document written with ID: ", docRef.id);
+        // } catch (e) {
+        // console.error("Error adding document: ", e);
+        // }
+
+    // const readDocument = async () => {
+    //     try {
+    //         const querySnapshot = await getDocs(collection(db, "users"));
+    //         querySnapshot.forEach((doc) => {
+    //             console.log(`${doc.id} => ${doc.data()}`);  
+    //         })
+    //     } catch (e) {
+    //     console.error("Error adding document: ", e);
+    //     }
+    // };
+
+    // const addDocument = async () => {
+    //     try {
+    //     const docRef = await addDoc(collection(db, "users"), {
+    //     // collection accpets two parameters, the first is the database and the second is the name of the collection that is being created
+    //         first: "Lark",
+    //         last: "Orillos",
+    //         born: 2001
+    //     });
+    //     console.log("Document written with ID: ", docRef.id);
+    //     } catch (e) {
+    //     console.error("Error adding document: ", e);
+    //     }
     // }
-
-    const readDocument = async () => {
-        try {
-            const querySnapshot = await getDocs(collection(db, "users"));
-            querySnapshot.forEach((doc) => {
-                console.log(`${doc.id} => ${doc.data()}`);  
-            })
-        } catch (e) {
-        console.error("Error adding document: ", e);
-        }
-    };
-
-    const addDocument = async () => {
-        try {
-        const docRef = await addDoc(collection(db, "users"), {
-        // collection accpets two parameters, the first is the database and the second is the name of the collection that is being created
-            first: "Lark",
-            last: "Orillos",
-            born: 2001
-        });
-        console.log("Document written with ID: ", docRef.id);
-        } catch (e) {
-        console.error("Error adding document: ", e);
-        }
-    }
     
-    return {readDocument, addDocument};
+    return {addDoc};
 }); 
 
 

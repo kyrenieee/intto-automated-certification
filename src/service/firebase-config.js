@@ -3,7 +3,6 @@ import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDWVm1dTAa0Uu_e3_AIw6dh0F5b4fEFhmc",
   authDomain: "autocert-38ccd.firebaseapp.com",
   projectId: "autocert-38ccd",
   storageBucket: "autocert-38ccd.firebasestorage.app",

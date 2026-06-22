@@ -12,3 +12,6 @@ createApp(App)
   .use(router)
   .use(pinia)
   .mount('#app')
+
+require('dotenv').config();
+const apiKey = process.env.API_KEY;

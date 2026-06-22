@@ -14,7 +14,7 @@ onMounted(() => {
 
 <template>
   <div>
-    <h1 class="bg-primary text-black p-3">settings 'to</h1>
+    <h1 class="bg-primary text-black p-3">welcome to the settings page</h1>
   </div>
 </template>
 

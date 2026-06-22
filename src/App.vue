@@ -8,14 +8,15 @@ import { onMounted } from 'vue'
 // prevent looping by checking if the documents have already been fetched
 onMounted(() => {
         const docuStore = useDocuStore();
-        docuStore.readDocument();
+        docuStore.addDoc();
     });
 </script>
 
 <template>
 <navbar class="bg-[#1C2D27]" />
-<main>
+<main >
     <RouterView />
+    
 </main>
 </template>
 
