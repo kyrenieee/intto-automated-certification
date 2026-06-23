@@ -10,6 +10,8 @@ onMounted(() => {
         const docuStore = useDocuStore();
         docuStore.readDocument();
     });
+    // if routerview=login, then hide navbar
+    
 </script>
 
 <template>
