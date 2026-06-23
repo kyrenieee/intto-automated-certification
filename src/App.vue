@@ -13,9 +13,10 @@ onMounted(() => {
 </script>
 
 <template>
-<navbar class="bg-[#1C2D27]" />
 <main>
+    <navbar />
     <RouterView />
+    
 </main>
 </template>
 
