@@ -31,7 +31,7 @@ const password = ref('')
           
           <!-- Username Field -->
           <label class="grid gap-[0.55rem]">
-            <span class="text-center text-[rgba(255,255,255,0.95)] font-[family:var(--font-poppins,Poppins,sans-serif)] text-[clamp(1.05rem,1vw+0.8rem,1.25rem)] font-semibold tracking-[0.01em]">
+            <span class="text-center text-[rgba(255,255,255,0.95)] font-poppins text-[clamp(1.05rem,1vw+0.8rem,1.25rem)] font-semibold tracking-[0.01em]">
               Username
             </span>
             <input 
@@ -45,7 +45,7 @@ const password = ref('')
 
           <!-- Password Field -->
           <label class="grid gap-[0.55rem]">
-            <span class="text-center text-[rgba(255,255,255,0.95)] font-[family:var(--font-poppins,Poppins,sans-serif)] text-[clamp(1.05rem,1vw+0.8rem,1.25rem)] font-semibold tracking-[0.01em]">
+            <span class="text-center text-[rgba(255,255,255,0.95)] font-poppins text-[clamp(1.05rem,1vw+0.8rem,1.25rem)] font-semibold tracking-[0.01em]">
               Password
             </span>
             <input 
@@ -60,7 +60,7 @@ const password = ref('')
           <!-- Submit Button -->
           <button 
             type="submit" 
-            class="justify-self-center min-w-[10rem] h-12 px-8 border border-[rgba(255,255,255,0.2)] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.08))] text-[rgba(255,255,255,0.95)] font-[family:var(--font-poppins,Poppins,sans-serif)] text-[1.05rem] font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_10px_20px_rgba(0,0,0,0.18)] transition-all duration-200 ease-in-out hover:translate-y-[-1px] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.1))] active:translate-y-0"
+            class="justify-self-center min-w-[10rem] h-12 px-8 border border-[rgba(255,255,255,0.2)] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.08))] text-[rgba(255,255,255,0.95)] font-poppins text-[1.05rem] font-light hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.12))] active:bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.16))] transition-all duration-200 ease-in-out"
           >
             Login
           </button>

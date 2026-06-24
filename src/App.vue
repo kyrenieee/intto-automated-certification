@@ -16,9 +16,7 @@ onMounted(() => {
 
 <template>
 <main>
-    <navbar />
     <RouterView />
-    
 </main>
 </template>
 
