@@ -5,7 +5,6 @@ import App from './App.vue'
 import './assets/main.css'
 import LiquidGlass from '@wxperia/liquid-glass-vue'
 import { createPinia } from 'pinia'
-import App from './components/App.vue/index.js'
 
 const pinia = createPinia()
 
