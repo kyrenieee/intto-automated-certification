@@ -1,14 +1,11 @@
 // root directory (all connections will be done here)
 import { createApp } from 'vue'
-<<<<<<< Updated upstream
 import router from './router'
 import App from './App.vue'
 import './assets/main.css'
 import LiquidGlass from '@wxperia/liquid-glass-vue'
 import { createPinia } from 'pinia'
-=======
 import App from './components/App.vue/index.js'
->>>>>>> Stashed changes
 
 const pinia = createPinia()
 

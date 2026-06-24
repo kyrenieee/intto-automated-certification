@@ -17,9 +17,6 @@ onMounted(() => {
   <div>
     <h1 class="text-black p-3">settings 'to</h1>
     <div class="flex flex-col items-center justify-center gap-4">
-      <LiquidGlass class="bg-[#ffffff]/10 flex items-center justify-center rounded-4xl" style="padding: 1rem; width: 200px; height: 50px;">
-  
-      <RouterLink to="./login" class="text-gray-800 text-lg font-poppins px-5 py-2 rounded-4xl" >Logout</RouterLink></LiquidGlass>
     </div>
   </div>
 </template>
