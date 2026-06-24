@@ -1,7 +1,7 @@
 import { createMemoryHistory, createRouter } from 'vue-router'
 
 import dashboard from './components/admin/dashboard.vue'
-import activeevent from './components/admin/activeevent.vue'
+import activeevent from './components/admin/activeevents/activeevent.vue/index.js'
 import settings from './components/admin/settings.vue'
 import eventcal from './components/admin/eventcal.vue'
 
