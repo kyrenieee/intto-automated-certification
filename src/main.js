@@ -6,7 +6,9 @@ import './assets/main.css'
 import LiquidGlass from '@wxperia/liquid-glass-vue'
 import { createPinia } from 'pinia'
 
+
 const pinia = createPinia()
+
 
 createApp(App)
   .use(router)
@@ -14,5 +16,3 @@ createApp(App)
   .mount('#app')
   .use(LiquidGlass) 
 
-require('dotenv').config();
-const apiKey = process.env.API_KEY;

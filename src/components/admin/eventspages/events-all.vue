@@ -2,26 +2,16 @@
 </script>
 
 <template>
-    <section>
-        <div>
-            <div>
-                <div>all events</div>
-                <div>active</div>
-                <div>completed</div>
-                <div>upcoming</div>
+    <main class="min-h-screen bg-[#1C2D27] p-3 font-poppins">
+    <section class="ml-auto flex flex-col mb-6 gap-10 justify-items-center">
+        <div class="flex space-x-3 relative">
+            <div class="relative w-64 md:w-80 ml-auto flex">
+                 <input type="text" placeholder="Search" class="justify-items-endw-full bg-[#32423b] text-white text-sm px-10 py-2.5 rounded-full border border-gray-600 focus:outline-none focus:border-[#4d6b5f]">
             </div>
-            <div>
-                search
-            </div>
+
         </div>
-        <div>
-            <div>all events</div>
-            <div>summary</div>
-            <div>actions</div>
-        </div>
-        <div>specific event name </div>
-        <div></div>
     </section>
+    </main>
 </template>
 
 <script>
