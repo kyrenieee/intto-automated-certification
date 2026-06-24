@@ -16,6 +16,7 @@ createApp(App)
   .use(router)
   .use(pinia)
   .mount('#app')
+  .use(LiquidGlass) 
 
 require('dotenv').config();
 const apiKey = process.env.API_KEY;
