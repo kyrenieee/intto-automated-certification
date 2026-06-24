@@ -8,7 +8,7 @@ import { onMounted } from 'vue'
 // prevent looping by checking if the documents have already been fetched
 onMounted(() => {
         const docuStore = useDocuStore();
-        docuStore.addDoc();
+        docuStore.readDocument();
     });
     // if routerview=login, then hide navbar
     
@@ -16,9 +16,7 @@ onMounted(() => {
 
 <template>
 <main>
-    <navbar />
     <RouterView />
-    
 </main>
 </template>
 
