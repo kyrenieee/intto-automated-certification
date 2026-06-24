@@ -1,9 +1,3 @@
-<template>
-    <div>
-        <p>Welcome to the dashboard!</p>
-    </div>
-</template>
-
 <script>
 export default {
     setup () {
@@ -14,6 +8,16 @@ export default {
 }
 </script>
 
-<style scoped>
+<template>
+    <div class="flex flex-col">
+        <div class="">
 
-</style>
+        </div>
+        <div class="">
+
+        </div>
+    </div>
+</template>
+
+
+
