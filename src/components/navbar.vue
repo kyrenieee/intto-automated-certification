@@ -42,14 +42,13 @@ import { RouterLink, RouterView } from 'vue-router'
     </div>
  
     <div class="justify-center item-center align-items-center"> 
-      
         <LiquidGlass
           :mouse-container="containerRef"
           :elasticity="0.15"
           :effect="liquidGlass"
           :mode="shader"
           :style="{ position: 'fixed', top: '5%', left: '50%', height: '50px', transform: 'translateX(-50%)' }" 
-          class="bg-[#ffffff]/10 flex items-center justify-center rounded-4xl">
+          class="bg-[#ffffff]/10 flex items-center justify-center rounded-[32px] px-4 py-2 gap-4">
 
           <RouterLink to="/dashboard" class="hover:bg-white/15 active:bg-white/30 text-white text-sm font-poppins px-5 py-2 rounded-4xl" >Home</RouterLink>
           <RouterLink to="/active" class="hover:bg-white/15 active:bg-white/30 text-white text-sm font-poppins px-5 py-2 rounded-4xl">Events</RouterLink>
@@ -64,7 +63,3 @@ import { RouterLink, RouterView } from 'vue-router'
     </div>
   </nav>
 </template>
-
-<style scoped>
-
-</style>

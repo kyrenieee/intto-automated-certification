@@ -12,11 +12,13 @@ onMounted(() => {
     });
     // if routerview=login, then hide navbar
     
+    
 </script>
 
 <template>
 <main>
-    <RouterView />
+    <navbar/>
+    <RouterView/>
 </main>
 </template>
 
@@ -26,5 +28,5 @@ onMounted(() => {
 
 
 <script>
-    
+
 </script>
