@@ -7,12 +7,12 @@ import eventcal from './components/admin/eventcal.vue'
 import login from './components/login.vue'
 
 const routes = [
-  {path: '/', redirect: '/login'},
+  { path: '/login', component: login },
   { path: '/dashboard', component: dashboard },
   { path: '/active', component: activeevent },
   { path: '/settings', component: settings },
   { path: '/eventcal', component: eventcal },
-  { path: '/login', component: login },
+  
 ]
 
 const router = createRouter({
