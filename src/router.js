@@ -1,7 +1,7 @@
 import { createMemoryHistory, createRouter } from 'vue-router'
 
 import dashboard from './components/admin/dashboard.vue'
-import activeevent from './components/admin/eventspages/events-all.vue'
+import activeevent from './components/admin/eventspages/eventsall.vue/index.js'
 import settings from './components/admin/settings.vue'
 import eventcal from './components/admin/eventcal.vue'
 import login from './components/login.vue'
@@ -9,7 +9,10 @@ import login from './components/login.vue'
 const routes = [
   { path: '/login', component: login },
   { path: '/dashboard', component: dashboard },
-  { path: '/active', component: activeevent },
+  { path: '/active', component: eventsall },
+  { path: '/settings', component: settings },
+  { path: '/eventcal', component: eventcal },
+  { path: '/participants', component: events },
   { path: '/settings', component: settings },
   { path: '/eventcal', component: eventcal },
   

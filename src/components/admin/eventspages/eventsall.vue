@@ -4,12 +4,21 @@
 <template>
     <main class="min-h-screen bg-[#1C2D27] p-3 font-poppins">
     <section class="ml-auto flex flex-col mb-6 gap-10 justify-items-center">
+        <div class="flex space-x-3">
+        <RouterLink to="/eventsall" class="px-5 py-2 rounded-full text-sm font-medium border border-gray-500 text-white hover:bg-[#253931]">All Events</RouterLink>
+        <RouterLink to="/eventsactive" class="px-5 py-2 rounded-full text-sm font-medium border border-gray-500 text-white hover:bg-[#253931]">Active</RouterLink>
+        <RouterLink to="/eventsactive" class="px-5 py-2 rounded-full text-sm font-medium border border-gray-500 text-white hover:bg-[#253931]">Completed</RouterLink>
+        <RouterLink to="/allevent" class="px-5 py-2 rounded-full text-sm font-medium border border-gray-500 text-white hover:bg-[#253931]">Upcoming</RouterLink>
+    </div>
         <div class="flex space-x-3 relative">
             <div class="relative w-64 md:w-80 ml-auto flex">
                  <input type="text" placeholder="Search" class="justify-items-endw-full bg-[#32423b] text-white text-sm px-10 py-2.5 rounded-full border border-gray-600 focus:outline-none focus:border-[#4d6b5f]">
             </div>
+        </div>
+        <div>
 
         </div>
+        <div class="relative w-55 h-60 rounded-xl font-white sm:rounded-4xl bg-[rgba(255,255,255,0.06)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)]">card</div>    
     </section>
     </main>
 </template>
