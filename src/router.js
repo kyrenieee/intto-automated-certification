@@ -1,7 +1,7 @@
 import { createMemoryHistory, createRouter } from 'vue-router'
 
 import dashboard from './components/admin/dashboard.vue'
-import activeevent from './components/admin/activeevent.vue'
+import activeevent from './components/admin/eventspages/events-all.vue'
 import settings from './components/admin/settings.vue'
 import eventcal from './components/admin/eventcal.vue'
 import login from './components/login.vue'
@@ -26,3 +26,4 @@ const router = createRouter({
 })
 
 export default router
+
