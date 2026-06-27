@@ -13,11 +13,7 @@ import { RouterLink, RouterView } from "vue-router";
     <div class="flex items-center">
       <RouterLink to="/dashboard">
         <div class="bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_4px_30px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-full p-2.5 flex items-center justify-center">
-          <img
-            src="../assets/inttologo.png"
-            alt="Intto Logo"
-            class="w-10 h-auto object-contain brightness-[1.2]"
-          />
+          <img src="../assets/inttologo.svg" alt="Intto Logo" class="w-10 h-auto object-contain brightness-[1.2]" />
         </div>
         </RouterLink>
     </div>
