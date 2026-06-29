@@ -38,7 +38,7 @@
         </div>
       </section>
 
-      <div class="bg-[rgba(255,255,255,0.06)] rounded-[2rem] border border-[rgba(255,255,255,0.12)] px-8 py-5 mb-4 shadow-lg">
+      <div class="bg-[rgba(255,255,255,0.06)] rounded-4xl border border-[rgba(255,255,255,0.12)] px-8 py-5 mb-4 shadow-lg">
         <div class="grid grid-cols-12 gap-4 items-center">
           <div class="col-span-5 text-white text-lg font-medium">Event Name</div>
           <div class="col-span-4 text-white text-lg font-medium">Summary</div>
@@ -46,12 +46,12 @@
         </div>
       </div> 
 
-      <div class="bg-[rgba(255,255,255,0.06)] rounded-[2rem] border border-[rgba(255,255,255,0.12)] p-4 shadow-lg flex flex-col gap-2">
+      <div class="bg-[rgba(255,255,255,0.06)] rounded-4xl border border-[rgba(255,255,255,0.12)] p-4 shadow-lg flex flex-col gap-2">
         
         <div 
           v-for="event in eventsList" 
           :key="event.id"
-          class="grid grid-cols-12 gap-4 items-center px-4 py-4 rounded-2xl hover:bg-[rgba(255,255,255,0.03)] transition duration-200"
+          class="grid grid-cols-12 gap-4 items-center px-4 py-4 rounded-4xl hover:bg-[rgba(255,255,255,0.03)] transition duration-200"
         >
           <div class="col-span-5 flex items-center gap-4">
             <div class="w-10 h-10 shrink-0 rounded-xl bg-[#32423B] border border-gray-600 flex items-center justify-center">
