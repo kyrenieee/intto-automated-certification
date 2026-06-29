@@ -13,10 +13,10 @@ const password = ref("");
   >
     <!-- bg blurs-->
     <div
-      class="absolute inset-auto rounded-full blur-[64px] opacity-35 pointer-events-none w-88 height-[22rem] -left-24 -top-20 bg-[rgba(92,126,104,0.35)]"
+      class="absolute inset-auto rounded-full blur-3xl opacity-35 pointer-events-none w-88 height-[22rem] -left-24 -top-20 bg-[rgba(92,126,104,0.35)]"
     ></div>
     <div
-      class="absolute inset-auto rounded-full blur-[64px] opacity-35 pointer-events-none w-[18rem] height-[18rem] -right-20 -bottom-16 bg-[rgba(196,214,201,0.16)]"
+      class="absolute inset-auto rounded-full blur-3xl opacity-35 pointer-events-none w-[18rem] height-[18rem] -right-20 -bottom-16 bg-[rgba(196,214,201,0.16)]"
     ></div>
 
     <!-- glass card -->

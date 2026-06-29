@@ -20,7 +20,7 @@ import { RouterLink, RouterView } from "vue-router";
 
     <!-- nav links -->
     <div class="flex items-center">
-      <div class="bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_8px_32px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-full px-2 py-1.5 flex items-center space-x-1">
+      <div class="h-11 bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_8px_32px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-full px-2 py-1.5 flex items-center space-x-1">
         <RouterLink
           to="/dashboard"
           class="hover:bg-white/15 active:bg-white/30 text-white text-sm font-poppins px-5 py-2 rounded-full transition-all duration-200"

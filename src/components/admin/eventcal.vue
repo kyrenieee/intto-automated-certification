@@ -38,7 +38,7 @@ const calendarDays = computed(() => {
 
   const daysArray = []
 
-  // Trailing previous month padding
+  // trailing previous month padding
   for (let i = firstDayIndex - 1; i >= 0; i--) {
     daysArray.push({
       dayNumber: totalDaysInPrevMonth - i,
@@ -47,7 +47,7 @@ const calendarDays = computed(() => {
     })
   }
 
-  // Active current month grid array
+  // active current month grid array
   for (let i = 1; i <= totalDaysInMonth; i++) {
     daysArray.push({
       dayNumber: i,
@@ -56,7 +56,7 @@ const calendarDays = computed(() => {
     })
   }
 
-  // Leading trailing next month padding
+  // leading trailing next month padding
   const totalSlots = Math.ceil(daysArray.length / 7) * 7
   const nextMonthPadding = totalSlots - daysArray.length
   for (let i = 1; i <= nextMonthPadding; i++) {
@@ -80,7 +80,7 @@ const hasEventOnSelectedDay = computed(() => {
   return mockEvents.value[activeKey] || null
 })
 
-// --- Actions ---
+// --- actions ---
 const handleDayClick = (day) => {
   if (day.isCurrentMonth) {
     selectedDay.value = day.dayNumber
@@ -101,7 +101,7 @@ const selectMonth = (index) => {
 </script>
 
 <template>
-  <div class="w-full max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 font-poppins text-white px-4">
+  <div class="w-full max-w-5xl p-5 bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] mx-auto grid grid-cols-1 rounded-4xl lg:grid-cols-3 gap-6 font-poppins text-white px-4 ">
     
     <!-- left panel: calendar dates -->
     <section class="lg:col-span-2 bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-3xl p-6 flex flex-col justify-between">
@@ -175,37 +175,38 @@ const selectMonth = (index) => {
       </div>
     </section>
 
-    <!-- day info sidebar -->
-    <section class="bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-3xl p-6 flex flex-col justify-between text-center min-h-[360px]">
+    <!-- right panel -  day info -->
+    <section class="bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-3xl p-6 flex flex-col justify-between text-center min-h-90">
       <div>
-        <h3 class="text-[rgba(255,255,255,0.45)] text-xs font-semibold tracking-widest uppercase mt-2">
+        <h3 class="text-[rgba(255,255,255,0.45)] text-medium font-medium tracking-widest uppercase mt-2 mb-4">
           {{ currentMonthName }}
         </h3>
         
-        <h1 class="text-7xl font-bold tracking-tight text-white my-3 select-none">
+        <h1 class="text-9xl font-4xl tracking-tight text-white my-3 select-none">
           {{ String(selectedDay).padStart(2, '0') }}
         </h1>
 
-        <p class="text-[rgba(255,255,255,0.75)] text-sm tracking-wide mb-8">
+        <p class="text-[rgba(255,255,255,0.75)] text-md tracking-wide mb-4">
           {{ selectedDayName }}
         </p>
 
-        <div class="py-4 border-t border-b border-white/5 text-xs tracking-wide">
+        <div class="py-4    text-xs tracking-wide">
           <p v-if="!hasEventOnSelectedDay" class="text-[rgba(255,255,255,0.3)]">
             No scheduled event.
           </p>
           <p v-else class="text-emerald-400 font-medium capitalize">
             Scheduled: <span class="text-white">{{ hasEventOnSelectedDay }} Day Event</span>
+            <!-- + event details -->
           </p>
         </div>
       </div>
-
+      
       <div class="mt-6">
         <RouterLink
           to="/eventcal-details"
          ">
         <!-- sched new event button -->
-        <button class="w-full h-11 text-xs font-medium tracking-wide text-[rgba(255,255,255,0.95)] bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.08))] border border-[rgba(255,255,255,0.15)] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.12))] active:bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.16))] transition-all duration-200 rounded-full mb-6 shadow-sm">
+        <button class="w-full h-11 text-md font-normal tracking-wide text-[rgba(255,255,255,0.95)] bg-[linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.08))] border border-[rgba(255,255,255,0.15)] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.12))] active:bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.16))] transition-all duration-200 rounded-full mb-6 shadow-sm">
           Schedule New Event
         </button>
         </RouterLink>
