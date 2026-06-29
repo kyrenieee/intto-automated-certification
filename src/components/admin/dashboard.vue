@@ -1,37 +1,126 @@
-<script>
-import { LiquidGlass } from '@wxperia/liquid-glass-vue';
+<script setup>
+import { RouterLink } from "vue-router";
+// import { analytics } from "@/firebase/config";
+// import { logEvent } from "firebase/analytics";
 
-export default {
-    setup () {
-        
-
-        return {}
-    }
-}
+// const trackDashboardClick = (buttonName, extraMetadata = {}) => {
+//   if (analytics) {
+//     logEvent(analytics, 'dashboard_interaction', {
+//       button_name: buttonName,
+//       timestamp: new Date().toISOString(),
+//       ...extraMetadata
+//     });
+//   }
+// };
 </script>
 
 <template>
-    <section class="flex flex-col bg-[#1C2D27] p-4 gap-4 relative font-poppins min-h-screen place-items-center overflow-hidden sm:p-8 bg-[radial-gradient(circle_at_top_left,rgba(98,132,110,0.18),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(177,201,186,0.08),transparent_28%),linear-gradient(180deg,#13211c_0%,#17251f_45%,#10201a_100%)]">
-        <div class="flex flex-col">
-            <!-- change into empty space? -->
-            <div class="justify-items-end flex gap-4 w-full px-4 sm:px-8 bg-[rgba(255,255,255,0.06)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)] rounded-4xl">
-                <RouterLink to="/eventcal" class="  text-white px-4 py-2 rounded-4xl">blank space 
-                </RouterLink>
-               
-            </div>
-            <div class="justify-items-end flex gap-4 w-full px-4 sm:px-8 bg-[rgba(255,255,255,0.06)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)] rounded-4xl">
-                <RouterLink to="/eventcal" class="  text-white px-4 py-2 rounded-4xl">Schedule New Event  
-                </RouterLink>
-                <!-- + svg -->
-            </div>
-        <div class="flex justify-around gap-4">
-            <div class="relative w-55 h-60 rounded-xl font-white sm:rounded-4xl bg-[rgba(255,255,255,0.06)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)]">card</div>
-            <div class="relative w-55 h-60 rounded-xl font-white sm:rounded-4xl bg-[rgba(255,255,255,0.06)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)]">card</div>
-            <div class="relative w-55 h-60 rounded-xl font-white sm:rounded-4xl bg-[rgba(255,255,255,0.06)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)]">card</div>
-            <div class="relative w-55 h-60 rounded-xl font-white sm:rounded-4xl bg-[rgba(255,255,255,0.06)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)]">card</div>
-            <!-- what the hell is happening -->
-        </div>
+  <section
+    class="w-full max-w-5xl mx-auto px-4 sm:px-6 font-poppins text-white flex flex-col gap-y-6"
+  >
+    <div class="flex justify-end items-center w-full">
+      <!-- sched new event button wrapper -->
+      <RouterLink
+        to="/eventcal"
+        @click="trackDashboardClick('schedule_new_event')"
+        class="flex items-center gap-2 px-6 h-12 bg-[rgba(255,255,255,0.06)] hover:bg-white/10 active:bg-white/15 border border-[rgba(255,255,255,0.12)] shadow-[0_4px_30px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md rounded-full text-sm font-medium tracking-wide text-white transition-all duration-200"
+      >
+        <span>Schedule New Event</span>
+        <!-- plus svg -->
+        <svg
+          class="w-4 h-4 text-white"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 4v16m8-8H4"
+          ></path>
+        </svg>
+      </RouterLink>
     </div>
-    </section>
-</template>
 
+    <!-- metric cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 w-full">
+      <!-- card 1: total events -->
+      <div
+        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-[11rem]"
+      >
+        <div>
+          <h3
+            class="text-xs font-semibold tracking-wider text-[rgba(255,255,255,0.45)] uppercase"
+          >
+            Total Events
+          </h3>
+          <p class="text-4xl font-bold text-white mt-2 select-none">42</p>
+        </div>
+        <!-- status node -->
+        <div
+          class="self-start px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium rounded-full flex items-center gap-1 shadow-sm"
+        >
+          <span>+4 this week</span>
+        </div>
+      </div>
+
+      <!-- card 2: upcoming events-->
+      <div
+        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-[11rem]"
+      >
+        <div>
+          <h3
+            class="text-xs font-semibold tracking-wider text-[rgba(255,255,255,0.45)] uppercase"
+          >
+            Upcoming Events
+          </h3>
+          <p class="text-4xl font-bold text-white mt-2 select-none">12</p>
+        </div>
+        <div
+          class="self-start px-3 py-1 bg-white/5 border border-white/10 text-white/60 text-xs font-medium rounded-full"
+        >
+          <span>Next: Tomorrow</span>
+        </div>
+      </div>
+
+      <!-- card 3: issued certificates-->
+      <div
+        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-[11rem]"
+      >
+        <div>
+          <h3
+            class="text-xs font-semibold tracking-wider text-[rgba(255,255,255,0.45)] uppercase"
+          >
+            Issued Certs
+          </h3>
+          <p class="text-4xl font-bold text-white mt-2 select-none">1,284</p>
+        </div>
+        <div
+          class="self-start px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium rounded-full"
+        >
+          <span>99.8% Success</span>
+        </div>
+      </div>
+
+      <!-- card 4: response rate -->
+      <div
+        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-[11rem]"
+      >
+        <div>
+          <h3
+            class="text-xs font-semibold tracking-wider text-[rgba(255,255,255,0.45)] uppercase"
+          >
+            Response Rate
+          </h3>
+          <p class="text-4xl font-bold text-white mt-2 select-none">84.3%</p>
+        </div>
+        <div
+          class="self-start px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium rounded-full"
+        >
+          <span>Avg: 14 mins</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
