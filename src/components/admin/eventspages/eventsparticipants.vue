@@ -38,7 +38,7 @@
         </div>
       </section>
 
-      <div class="bg-[rgba(255,255,255,0.06)] rounded-[2rem] border border-[rgba(255,255,255,0.12)] px-8 py-5 mb-4 shadow-lg">
+      <div class="bg-[rgba(255,255,255,0.06)] rounded-4xl border border-[rgba(255,255,255,0.12)] px-8 py-5 mb-4 shadow-lg">
         <div class="grid grid-cols-12 gap-4 items-center">
           <div class="col-span-5 text-white text-lg font-medium">Event Name</div>
           <div class="col-span-4 text-white text-lg font-medium">Summary</div>
@@ -46,7 +46,7 @@
         </div>
       </div> 
 
-      <div class="bg-[rgba(255,255,255,0.06)] rounded-[2rem] border border-[rgba(255,255,255,0.12)] p-4 shadow-lg flex flex-col gap-2">
+      <div class="bg-[rgba(255,255,255,0.06)] rounded-4xl border border-[rgba(255,255,255,0.12)] p-4 shadow-lg flex flex-col gap-2">
         
         <div 
           v-for="event in eventsList" 

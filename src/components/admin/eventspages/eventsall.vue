@@ -1,22 +1,23 @@
 <template>
-  <main class="min-h-screen bg-[#1C2D27] p-8 font-poppins">
-    <div class="max-w-6xl mx-auto">
+  <main class="min-h-screen font-poppins pt-4 pb-12">
+    <div class="w-full max-w-5xl mx-auto px-4 sm:px-6 flex flex-col gap-y-6">
       
-      <section class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <section class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         
         <div class="flex space-x-3">
-          <RouterLink to="/eventsall" class="px-6 py-2 rounded-full text-sm font-medium border border-[#3E5249] bg-[#2A3F35] text-white shadow-sm">
-            All Events
-          </RouterLink>
-          <RouterLink to="/eventsactive" class="px-6 py-2 rounded-full text-sm font-medium border border-[#3E5249] text-gray-300 hover:text-white hover:bg-[#2A3F35] transition">
-            Active
-          </RouterLink>
-          <RouterLink to="/eventscompleted" class="px-6 py-2 rounded-full text-sm font-medium border border-[#3E5249] text-gray-300 hover:text-white hover:bg-[#2A3F35] transition">
-            Completed
-          </RouterLink>
-          <RouterLink to="/eventsupcoming" class="px-6 py-2 rounded-full text-sm font-medium border border-[#3E5249] text-gray-300 hover:text-white hover:bg-[#2A3F35] transition">
-            Upcoming
-          </RouterLink>
+          <button
+            v-for="filter in ['All Events', 'Active', 'Completed', 'Upcoming']"
+            :key="filter"
+            @click="currentFilter = filter"
+            :class="[
+              'px-6 py-2 rounded-full text-sm font-medium border transition',
+              currentFilter === filter 
+                ? 'bg-[#2A3F35] border-[#3E5249] text-white shadow-sm' 
+                : 'border-[#3E5249] text-gray-300 hover:text-white hover:bg-[#2A3F35]'
+            ]"
+          >
+            {{ filter }}
+          </button>
         </div>
 
         <div class="relative w-full md:w-80">
@@ -31,14 +32,14 @@
             class="w-full bg-[#32423B] text-white text-sm pl-10 pr-10 py-2.5 rounded-full border border-[#445A50] focus:outline-none focus:border-[#6C8A7D] transition"
           >
           <div class="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 6h16M7 12h10M10 18h4" />
             </svg>
           </div>
         </div>
       </section>
 
-      <div class="bg-[rgba(255,255,255,0.06)] rounded-4xl border border-[rgba(255,255,255,0.12)] px-8 py-5 mb-4 shadow-lg">
+      <div class="bg-[rgba(255,255,255,0.06)] rounded-4xl border border-[rgba(255,255,255,0.12)] px-8 py-5 shadow-lg">
         <div class="grid grid-cols-12 gap-4 items-center">
           <div class="col-span-5 text-white text-lg font-medium">Event Name</div>
           <div class="col-span-4 text-white text-lg font-medium">Summary</div>
@@ -49,9 +50,9 @@
       <div class="bg-[rgba(255,255,255,0.06)] rounded-4xl border border-[rgba(255,255,255,0.12)] p-4 shadow-lg flex flex-col gap-2">
         
         <div 
-          v-for="event in eventsList" 
+          v-for="event in filteredEvents" 
           :key="event.id"
-          class="grid grid-cols-12 gap-4 items-center px-4 py-4 rounded-4xl hover:bg-[rgba(255,255,255,0.03)] transition duration-200"
+          class="grid grid-cols-12 gap-4 items-center px-4 py-4 rounded-2xl hover:bg-[rgba(255,255,255,0.03)] transition duration-200"
         >
           <div class="col-span-5 flex items-center gap-4">
             <div class="w-10 h-10 shrink-0 rounded-xl bg-[#32423B] border border-gray-600 flex items-center justify-center">
@@ -60,7 +61,10 @@
               </svg>
             </div>
             <div>
-              <h3 class="text-white text-[15px] font-medium leading-tight">{{ event.title }}</h3>
+              <div class="flex items-center gap-2">
+                <h3 class="text-white text-[15px] font-medium leading-tight">{{ event.title }}</h3>
+                <span class="text-[9px] px-2 py-0.5 rounded-full border border-gray-500 text-gray-400">{{ event.status }}</span>
+              </div>
               <p class="text-gray-400 text-[11px] mt-1">{{ event.date }} • {{ event.location }}</p>
             </div>
           </div>
@@ -96,6 +100,10 @@
             </button>
           </div>
         </div>
+        
+        <div v-if="filteredEvents.length === 0" class="text-center py-10 text-gray-400">
+          No events found for this filter.
+        </div>
 
       </div>
     </div>
@@ -103,13 +111,22 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
-// placeholder kasi wala pa ako firebase
+// placeholders he he he
+const currentFilter = ref('All Events')
+
 const eventsList = ref([
-  { id: 1, title: 'Technopreneurship Demo Day 7', date: 'April 7, 2026', location: 'UC Theater', scans: '103', certs: '87', survey: '85%' },
+  { id: 1, title: 'Technopreneurship Demo Day 7', date: 'April 7, 2026', location: 'UC InTTO', scans: '103', certs: '87', survey: '85%', status: 'Active' },
+  { id: 2, title: 'Technopreneurship Demo Day 7', date: 'March 15, 2026', location: 'UC InTTO', scans: '45', certs: '45', survey: '98%', status: 'Completed' },
+  { id: 3, title: 'Technopreneurship Demo Day 7', date: 'May 20, 2026', location: 'UC InTTO', scans: '0', certs: '0', survey: '0%', status: 'Upcoming' },
+  { id: 4, title: 'Technopreneurship Demo Day 7', date: 'April 2, 2026', location: 'UC InTTO', scans: '80', certs: '75', survey: '92%', status: 'Active' },
 ])
-</script>
 
-<style scoped>
-</style>
+const filteredEvents = computed(() => {
+  if (currentFilter.value === 'All Events') {
+    return eventsList.value
+  }
+  return eventsList.value.filter(event => event.status === currentFilter.value)
+})
+</script>

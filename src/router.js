@@ -6,7 +6,7 @@ import eventsall from './components/admin/eventspages/eventsall.vue'
 import eventsparticipant from './components/admin/eventspages/eventsparticipants.vue' 
 import settings from './components/admin/settings.vue'
 import eventcal from './components/admin/eventcal.vue'
-import login from './components/login.vue'
+
 import eventcaldetails from './components/admin/eventcal-details.vue'
 
 const routes = [

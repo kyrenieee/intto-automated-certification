@@ -1,18 +1,41 @@
-import {ref} from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import {db} from './firebase-config'
-import { collection, getDocs, addDoc, setDoc } from 'firebase/firestore'
-import { collection, getDocs, addDoc, setDoc } from 'firebase/auth'
+import { auth } from './firebase-config' 
 
-export const useDocuAuth = defineStore('document', async () => { 
-    const docuList = ref([])
-    const docuCollectionRef = collection(db, 'documents') 
-    
-    return {addDoc};
-}); 
+import { 
+  signInWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged 
+} from 'firebase/auth'
 
 
-//initiated and implemented firestore (CRUD)
+export const useAuthStore = defineStore('auth', () => {
+  const user = ref(null)
+  const errorMsg = ref(null)
 
+  // ACTION: This function ACCEPTS INPUTS from your login form
+  const loginUser = async (email, password) => {
+    errorMsg.value = null // Reset errors
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      user.value = userCredential.user
+      console.log("Logged in successfully!", user.value.email)
+    } catch (error) {
+      console.error("Login failed:", error.message)
+      errorMsg.value = "Invalid email or password." 
+    }
+  }
 
+  const initializeAuthListener = () => {
+    onAuthStateChanged(auth, (currentUser) => {
+      user.value = currentUser
+    })
+  }
 
+  return { 
+    user, 
+    errorMsg, 
+    loginUser, 
+    initializeAuthListener 
+  }
+})

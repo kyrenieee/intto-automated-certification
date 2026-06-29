@@ -277,7 +277,7 @@ const handleNextStep = () => {
           <!-- overlay menu emeng glass -->
           <div
             v-if="showLocationPicker && locationResults.length > 0"
-            class="absolute left-0 top-[4.5rem] w-full bg-[rgba(22,34,29,0.96)] backdrop-blur-xl border border-[rgba(255,255,255,0.15)] shadow-2xl rounded-2xl overflow-hidden z-30 max-h-60 overflow-y-auto"
+            class="absolute left-0 top-18 w-full bg-[rgba(22,34,29,0.96)] backdrop-blur-xl border border-[rgba(255,255,255,0.15)] shadow-2xl rounded-2xl overflow-hidden z-30 max-h-60 overflow-y-auto"
           >
             <button
               v-for="place in locationResults"

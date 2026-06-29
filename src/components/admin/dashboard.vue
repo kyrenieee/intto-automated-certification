@@ -47,7 +47,7 @@ import { RouterLink } from "vue-router";
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 w-full">
       <!-- card 1: total events -->
       <div
-        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-[11rem]"
+        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-44"
       >
         <div>
           <h3
@@ -67,7 +67,7 @@ import { RouterLink } from "vue-router";
 
       <!-- card 2: upcoming events-->
       <div
-        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-[11rem]"
+        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-44"
       >
         <div>
           <h3
@@ -86,7 +86,7 @@ import { RouterLink } from "vue-router";
 
       <!-- card 3: issued certificates-->
       <div
-        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-[11rem]"
+        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-44"
       >
         <div>
           <h3
@@ -105,7 +105,7 @@ import { RouterLink } from "vue-router";
 
       <!-- card 4: response rate -->
       <div
-        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-[11rem]"
+        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-44"
       >
         <div>
           <h3

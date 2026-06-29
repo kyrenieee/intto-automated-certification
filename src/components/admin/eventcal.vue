@@ -176,7 +176,7 @@ const selectMonth = (index) => {
     </section>
 
     <!-- day info sidebar -->
-    <section class="bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-3xl p-6 flex flex-col justify-between text-center min-h-[360px]">
+    <section class="bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-3xl p-6 flex flex-col justify-between text-center min-h-90">
       <div>
         <h3 class="text-[rgba(255,255,255,0.45)] text-xs font-semibold tracking-widest uppercase mt-2">
           {{ currentMonthName }}
@@ -203,7 +203,7 @@ const selectMonth = (index) => {
       <div class="mt-6">
         <RouterLink
           to="/eventcal-details"
-         ">
+         >
         <!-- sched new event button -->
         <button class="w-full h-11 text-xs font-medium tracking-wide text-[rgba(255,255,255,0.95)] bg-[linear-gradient(180deg,rgba(255,255,255,0.14),rgba(255,255,255,0.08))] border border-[rgba(255,255,255,0.15)] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.12))] active:bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.16))] transition-all duration-200 rounded-full mb-6 shadow-sm">
           Schedule New Event
