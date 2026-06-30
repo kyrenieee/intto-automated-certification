@@ -12,65 +12,13 @@ const eventForm = ref({
   location: "",
 });
 
-// // --- Dynamic Search States ---
-// const locationResults = ref([]);
-// const isSearching = ref(false);
-// const showLocationPicker = ref(false);
-// let debounceTimeout = null;
-
-// // --- api (mapbox) fetch of live searcg ---
-// const handleLocationInput = (event) => {
-//   const query = event.target.value;
-//   eventForm.value.location = query;
-
-//   // Clear previous timers to prevent unnecessary network spam
-//   clearTimeout(debounceTimeout);
-
-//   if (query.trim().length < 3) {
-//     locationResults.value = [];
-//     return;
-//   }
-
-//   // debounce api calls for 400ms to reduce network requests
-//   debounceTimeout = setTimeout(async () => {
-//     isSearching.value = true;
-//     showLocationPicker.value = true;
-
-//     try {
-//       const MAPBOX_TOKEN = "pk.eyJ1IjoiY3RybC16IiwiYSI6ImNtcXY2enFkYzB6YnIycm9qNDRpbTM5azYifQ.V_j83DTWprKXJoc7nNk4RQ";
-
-//       const res = await fetch(
-//         `https://mapbox.com{encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}&limit=5&types=address,place,poi`
-//       );
-
-//       if (!res.ok)
-//         throw new Error(`Mapbox responded with status: ${res.status}`);
-
-//       const data = await res.json();
-
-//       if (data.features) {
-//         locationResults.value = data.features.map(
-//           (feature) => feature.place_name
-//         );
-//       } else {
-//         locationResults.value = [];
-//       }
-//     } catch (err) {
-//       console.error("Mapbox location search failed:", err);
-//       locationResults.value = [];
-//     } finally {
-//       isSearching.value = false;
-//     }
-//   }, 400);
-// }; 
-//what the hell is this
 
 
 const selectLocation = (selectedPlace) => {
   eventForm.value.location = selectedPlace;
   showLocationPicker.value = false;
 
-  // Optional analytics tracking safeties
+  // optional analytics tracking safeties
   if (typeof analytics !== 'undefined' && analytics) {
     logEvent(analytics, "location_selected", { place_name: selectedPlace });
   }
@@ -289,10 +237,23 @@ const handleNextStep = () => {
               {{ place }}
             </button>
           </div>
+
         </div>
       </form>
+          <!-- add template -->
+      <form v-if="currentStep === 2" class="w-full flex flex-col gap-y-6 text-left" @submit.prevent>
+        <label class="flex flex-col gap-y-2">
+          <span class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]">Certificate Template*</span>
+          <input type="file" accept=".png,.jpg,.jpeg,.pdf" class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 placeholder:text-white/20 text-white" />
+        </label>
+        
+      </form>
+
+      
     </main>
-  </div>
+      
+    </div>
+ 
 </template>
 
 <style scoped>

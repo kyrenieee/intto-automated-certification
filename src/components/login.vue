@@ -9,7 +9,7 @@ const password = ref("");
 <!-- zai -->
 <template>
   <section
-    class="relative font-poppins min-h-screen grid place-items-center overflow-hidden p-4 sm:p-8 bg-[radial-gradient(circle_at_top_left,rgba(98,132,110,0.18),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(177,201,186,0.08),transparent_28%),linear-gradient(180deg,#13211c_0%,#17251f_45%,#10201a_100%)]"
+    class="relative font-poppins w-full min-h-screen grid place-items-center overflow-hidden p-4 sm:p-8 ]"
   >
     <!-- bg blurs-->
     <div
