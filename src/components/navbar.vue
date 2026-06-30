@@ -23,22 +23,22 @@ import { RouterLink, RouterView } from "vue-router";
       <div class="h-11 bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_8px_32px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-full px-2 py-1.5 flex items-center space-x-1">
         <RouterLink
           to="/dashboard"
-          class="hover:bg-white/15 active:bg-white/30 text-white text-sm font-poppins px-5 py-2 rounded-full transition-all duration-200"
+          class="hover:bg-white/15 active:bg-white/30 text-white text-sm font-poppins px-3 py-1 rounded-full transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-white/30  focus:ring-offset-gray-800 focus:bg-white/15"
           >Home</RouterLink
         >
         <RouterLink
           to="/active"
-          class="hover:bg-white/15 active:bg-white/30 text-white text-sm font-poppins px-5 py-2 rounded-full transition-all duration-200"
+          class="hover:bg-white/15 active:bg-white/30 text-white text-sm font-poppins px-3 py-1 rounded-full transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-white/30  focus:ring-offset-gray-800 focus-within:bg-white/15"
           >Events</RouterLink
         >
         <RouterLink
           to="/settings"
-          class="hover:bg-white/15 active:bg-white/30 text-white text-sm font-poppins px-5 py-2 rounded-full transition-all duration-200"
+          class="hover:bg-white/15 active:bg-white/30 text-white text-sm font-poppins px-3 py-1 rounded-full transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-white/30  focus:ring-offset-gray-800 focus-within:bg-white/15"
           >Settings</RouterLink
         >
         <RouterLink
           to="/eventcal"
-          class="hover:bg-white/15 active:bg-white/30 text-white text-sm font-poppins px-5 py-2 rounded-full transition-all duration-200"
+          class="hover:bg-white/15 active:bg-white/30 text-white text-sm font-poppins px-3 py-1 rounded-full transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-white/30  focus:ring-offset-gray-800 focus-within:bg-white/15"
           >Add Event</RouterLink
         >
       </div>

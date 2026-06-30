@@ -197,6 +197,7 @@ const selectMonth = (index) => {
           <p v-else class="text-emerald-400 font-medium capitalize">
             Scheduled: <span class="text-white">{{ hasEventOnSelectedDay }} Day Event</span>
             <!-- + event details -->
+             
           </p>
         </div>
       </div>
