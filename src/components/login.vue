@@ -25,11 +25,11 @@ const handleLogin = async () => {
 <!-- zai -->
 <template>
   <section
-    class="relative font-poppins min-h-screen grid place-items-center overflow-hidden p-4 sm:p-8 bg-[radial-gradient(circle_at_top_left,rgba(98,132,110,0.18),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(177,201,186,0.08),transparent_28%),linear-gradient(180deg,#13211c_0%,#17251f_45%,#10201a_100%)]"
+    class="relative font-poppins w-full min-h-screen grid place-items-center overflow-hidden p-4 sm:p-8 ]"
   >
     <!-- bg blurs-->
     <div
-      class="absolute inset-auto rounded-full  blur-3xl opacity-35 pointer-events-none w-88 height-[22rem] -left-24 -top-20 bg-[rgba(92,126,104,0.35)]"
+      class="absolute inset-auto rounded-full blur-3xl opacity-35 pointer-events-none w-88 height-[22rem] -left-24 -top-20 bg-[rgba(92,126,104,0.35)]"
     ></div>
     <div
       class="absolute inset-auto rounded-full blur-3xl opacity-35 pointer-events-none w-[18rem] height-[18rem] -right-20 -bottom-16 bg-[rgba(196,214,201,0.16)]"
