@@ -63,17 +63,6 @@ const prevStep = () => {
         >
           Next
         </button>
-
-        <button 
-          v-if="currentStep === 3" 
-          class="w-3/4 max-w-50 py-3 rounded-full bg-[rgba(255,255,255,0.1)] border border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.15)] text-white text-sm font-medium transition-colors"
-        >
-          Download
-        </button>
-
-        <p class="text-[10px] text-gray-500 border-b border-gray-500 pb-0.5 mt-4">
-          UC- Innovation and Technology Transfer Office
-        </p>
       </div>
 
     </div>
