@@ -5,8 +5,8 @@ import { useAuthStore} from "../service/docuauth";
 
 const router = useRouter();
 const authStore = useAuthStore();
-const username = ref("");
-const password = ref("");
+const username = user.email;
+const password = user.password;
 
 // will trigger when form is submitted
 const handleLogin = async () => {
