@@ -2,7 +2,6 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore} from "../service/docuauth";
-import { LiquidGlass } from "@wxperia/liquid-glass-vue";
 
 const router = useRouter();
 const authStore = useAuthStore();

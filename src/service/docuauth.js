@@ -4,7 +4,6 @@ import { auth } from './firebase-config'
 
 import { 
   signInWithEmailAndPassword, 
-  signOut, 
   onAuthStateChanged 
 } from 'firebase/auth'
 
@@ -13,7 +12,7 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
   const errorMsg = ref(null)
 
-  // ACTION: This function ACCEPTS INPUTS from your login form
+  //user login func
   const loginUser = async (email, password) => {
     errorMsg.value = null // Reset errors
     try {
