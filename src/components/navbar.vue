@@ -1,6 +1,5 @@
 <script setup>
 //for imports only
-import { LiquidGlass } from "@wxperia/liquid-glass-vue";
 import { RouterLink, RouterView } from "vue-router";
 </script>
 <!-- zai -->

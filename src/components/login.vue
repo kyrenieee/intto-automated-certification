@@ -1,7 +1,5 @@
 <script setup>
 import { ref } from "vue";
-import { LiquidGlass } from "@wxperia/liquid-glass-vue";
-
 const username = ref("");
 const password = ref("");
 </script>
