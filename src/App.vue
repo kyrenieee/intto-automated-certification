@@ -1,6 +1,5 @@
 <script setup>
 import navbar from './components/navbar.vue'
-import settings from './components/admin/settings.vue'
 import login from './components/login.vue'
 
 import { useDocuStore } from './service/docustore.js';

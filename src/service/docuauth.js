@@ -17,8 +17,7 @@ export const useAuthStore = defineStore('auth', () => {
     errorMsg.value = null // Reset errors
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
-      user.value = userCredential.user
-      console.log("Logged in successfully!", user.value.email)
+       
     } catch (error) {
       console.error("Login failed:", error.message)
       errorMsg.value = "Invalid email or password." 
