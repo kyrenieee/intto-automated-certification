@@ -1,61 +1,35 @@
-import {ref} from 'vue'
-import { defineStore } from 'pinia'
-import {db} from './firebase-config'
-import { collection, getDocs, addDoc, setDoc } from 'firebase/firestore'
+import { db } from './firebase-config' 
+import { collection, addDoc, getDocs, orderBy, query } from 'firebase/firestore'
 
-// connects the backend database to the frontend and allows for data to be stored and retrieved from the database
-// operation that can be performed on the database include: add, delete, update, and retrieve data from the database
-// CRUD (For firestore only)
-export const useDocuStore = defineStore('document', async () => { 
-    //insert the value of the input field before into the database
-    // document - paramaeter that is passed to the function and is used to store the value of the input field into the database
-    // ref - insert into an array of documents that is stored in the database
-    const docuList = ref([])
-    const docuCollectionRef = collection(db, 'documents') 
-    // collection - bucket in the database that is used to store the documents
+// new event func
+export const createEventInFirestore = async (eventData) => {
+  try {
+    const docRef = await addDoc(collection(db, 'events'), {
+      ...eventData,
+      createdAt: new Date().toISOString()
+    })
+    return docRef.id
+  } catch (error) {
+    console.error("Error adding event: ", error)
+    throw error
+  }
+}
 
-        // try {
-        // const docRef = await addDoc(collection(db, "users"), {
-        // // collection accpets two parameters, the first is the database and the second is the name of the collection that is being created
-        //     first: "Miguel",
-        //     last: "Gumiran",
-        //     born: 2004
-        // });
-        // console.log("Document written with ID: ", docRef.id);
-        // } catch (e) {
-        // console.error("Error adding document: ", e);
-        // }
-
-    // const readDocument = async () => {
-    //     try {
-    //         const querySnapshot = await getDocs(collection(db, "users"));
-    //         querySnapshot.forEach((doc) => {
-    //             console.log(`${doc.id} => ${doc.data()}`);  
-    //         })
-    //     } catch (e) {
-    //     console.error("Error adding document: ", e);
-    //     }
-    // };
-
-    // const addDocument = async () => {
-    //     try {
-    //     const docRef = await addDoc(collection(db, "users"), {
-    //     // collection accpets two parameters, the first is the database and the second is the name of the collection that is being created
-    //         first: "Lark",
-    //         last: "Orillos",
-    //         born: 2001
-    //     });
-    //     console.log("Document written with ID: ", docRef.id);
-    //     } catch (e) {
-    //     console.error("Error adding document: ", e);
-    //     }
-    // }
+// feych events
+export const fetchAllEvents = async () => {
+  try {
+    // creation date
+    const eventsQuery = query(collection(db, 'events'), orderBy('createdAt', 'desc'))
+    const querySnapshot = await getDocs(eventsQuery)
     
-    return {addDoc};
-}); 
-
-
-//initiated and implemented firestore (CRUD)
-
-
-
+    const eventsList = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }))
+    
+    return eventsList
+  } catch (error) {
+    console.error("Error fetching events: ", error)
+    throw error
+  }
+}
