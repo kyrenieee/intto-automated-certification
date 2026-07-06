@@ -1,9 +1,9 @@
 <template>
-  <main class="w-full bg-[#23322e] rounded-[32px] p-8 sm:p-12 text-white font-['Poppins']">
+  <main class="w-full bg-[rgba(255,255,255,0.06)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)] rounded-4xl p-8 sm:p-12 text-white font-['Poppins']">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
 
       <!-- left panel - config -->
-      <div class="lg:col-span-5 flex flex-col justify-between min-h-[420px] gap-y-10">
+      <div class="lg:col-span-5 flex flex-col justify-between min-h-105 gap-y-10">
         <div>
           <h1 class="text-3xl sm:text-[44px] font-bold leading-tight tracking-tight mb-2">
             Certificate Preview
@@ -17,7 +17,7 @@
             <div
               v-for="variable in variables"
               :key="variable.key"
-              class="group flex items-center bg-white/5 border border-white/15 rounded-2xl p-5 hover:bg-white/10 hover:border-white/30 transition-all cursor-grab"
+              class="group flex items-center bg-[rgba(255,255,255,0.06)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)] rounded-4xl p-5 hover:bg-white/10 hover:border-white/30 transition-all cursor-grab"
             >
               <div class="grid grid-cols-2 gap-1 text-gray-400 group-hover:text-white mr-5">
                 <div class="w-1.5 h-1.5 bg-current rounded-full" v-for="n in 6" :key="n"></div>
@@ -50,7 +50,7 @@
 
       <!-- right panel - canvas -->
       <div class="lg:col-span-7 lg:pl-6">
-        <div class="w-full aspect-[16/10] bg-white rounded-2xl shadow-2xl relative overflow-hidden text-black p-8">
+        <div class="w-full aspect-16/10 bg-white rounded-2xl shadow-2xl relative overflow-hidden text-black p-8">
           <img
             v-if="templatePreviewUrl"
             :src="templatePreviewUrl"

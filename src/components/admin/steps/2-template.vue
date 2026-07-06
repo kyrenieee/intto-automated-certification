@@ -1,8 +1,8 @@
 <template>
   <main
-    class="w-full bg-white/10 backdrop-blur-md border border-white/10 rounded-[32px] p-6 sm:p-10 font-['Poppins'] select-none flex flex-col gap-y-8"
+    class="w-full bg-white/10 backdrop-blur-md border border-white/10 rounded-4xl p-6 sm:p-10 font-poppins select-none flex flex-col gap-y-8"
   >
-    <!-- Header Control Area -->
+    <!-- header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
         <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight text-white">
@@ -25,9 +25,9 @@
       </button>
     </div>
 
-    <!-- Interactive Dropzone -->
+    <!-- template upload? -->
     <label
-      class="w-full h-[320px] sm:h-[381px] border-2 border-dashed border-[#d1d5dc] rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 transition-all duration-200 group"
+      class="w-full h-80 sm:h-95.25 border-2 border-dashed border-[#d1d5dc] rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 transition-all duration-200 group"
       @dragover.prevent
       @drop.prevent="handleDrop"
     >
@@ -67,7 +67,7 @@
           v-if="previewUrl"
           :src="previewUrl"
           alt="Template preview"
-          class="max-h-[220px] rounded-lg shadow-lg mb-4 object-contain"
+          class="max-h-55 rounded-lg shadow-lg mb-4 object-contain"
         />
         <p class="text-white font-medium">{{ localForm.templateFile.name }}</p>
         <button

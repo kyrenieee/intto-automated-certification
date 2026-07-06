@@ -1,5 +1,5 @@
 <template>
-  <main class="w-full bg-[#23322e] rounded-[32px] p-8 sm:p-12 text-white font-['Poppins'] select-none">
+  <main class="w-full bg-[rgba(255,255,255,0.06)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)] rounded-4xl p-8 sm:p-12 text-white font-['Poppins'] select-none">
 
     <!-- header -->
     <div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-10">
@@ -31,7 +31,7 @@
       <div
         v-for="(question, index) in localQuestions"
         :key="question.id"
-        class="flex items-start bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 hover:bg-white/[0.05] transition group"
+        class="flex items-start bg-white/3 border border-white/8 rounded-2xl p-6 hover:bg-white/[8 transition group"
       >
         <div class="grid grid-cols-2 gap-0.5 text-gray-500 group-hover:text-gray-300 mr-5 mt-1.5 cursor-grab">
           <div class="w-1 h-1 bg-current rounded-full" v-for="n in 6" :key="n"></div>
