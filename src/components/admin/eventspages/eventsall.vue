@@ -1,3 +1,46 @@
+<script>
+import { ref, computed, onMounted } from 'vue'
+import { fetchAllEvents } from '../../../service/docustore.js' 
+
+const currentFilter = ref('All Events')
+const eventsList = ref([])
+const isLoading = ref(true)
+
+// fetch evetns sa firestore
+onMounted(async () => {
+  try {
+    eventsList.value = await fetchAllEvents()
+  } catch (error) {
+    console.error("Failed to load events")
+  } finally {
+    isLoading.value = false
+  }
+})
+
+// date calculation for events
+const filteredEvents = computed(() => {
+  const today = new Date().toISOString().split('T')[0] 
+
+  const eventsWithDynamicStatus = eventsList.value.map(event => {
+    let calculatedStatus = 'Upcoming' // Default
+    
+    if (event.date < today) {
+      calculatedStatus = 'Completed'
+    } else if (event.date === today) {
+      calculatedStatus = 'Active'
+    }
+    
+    return { ...event, status: calculatedStatus }
+  })
+
+  // 'filter'
+  if (currentFilter.value === 'All Events') {
+    return eventsWithDynamicStatus
+  }
+  return eventsWithDynamicStatus.filter(event => event.status === currentFilter.value)
+})
+</script>
+
 <template>
   <main class="min-h-screen font-poppins pt-4 pb-12">
     <div class="w-full max-w-5xl mx-auto px-4 sm:px-6 flex flex-col gap-y-6">
@@ -111,22 +154,5 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
 
-// placeholders he he he
-const currentFilter = ref('All Events')
-
-const eventsList = ref([
-  { id: 1, title: 'Technopreneurship Demo Day 7', date: 'April 7, 2026', location: 'UC InTTO', scans: '103', certs: '87', survey: '85%', status: 'Active' },
-  { id: 2, title: 'Technopreneurship Demo Day 7', date: 'March 15, 2026', location: 'UC InTTO', scans: '45', certs: '45', survey: '98%', status: 'Completed' },
-  { id: 3, title: 'Technopreneurship Demo Day 7', date: 'May 20, 2026', location: 'UC InTTO', scans: '0', certs: '0', survey: '0%', status: 'Upcoming' },
-  { id: 4, title: 'Technopreneurship Demo Day 7', date: 'April 2, 2026', location: 'UC InTTO', scans: '80', certs: '75', survey: '92%', status: 'Active' },
-])
-
-const filteredEvents = computed(() => {
-  if (currentFilter.value === 'All Events') {
-    return eventsList.value
-  }
-  return eventsList.value.filter(event => event.status === currentFilter.value)
-})
 </script>

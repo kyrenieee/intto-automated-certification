@@ -1,6 +1,6 @@
 <template>
 <!-- Main Wrapper (Frame 31) -->
-<div class="absolute w-[1709px] h-[622px] left-[calc(50%-1709px/2-9.5px)] top-[333px] bg-white/10 rounded-[32px] p-[30px] font-['Poppins'] select-none">
+<div class="absolute w-[1709px] h-155.5px left-[calc(50%-1709px/2-9.5px)] top-[83.25] bg-white/10 rounded-[32px] p-[30px] font-['Poppins'] select-none">
   
   <!-- Header Control Area -->
   <div class="flex justify-between items-start pl-[110px] pr-[110px]">

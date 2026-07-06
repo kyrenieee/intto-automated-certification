@@ -5,13 +5,13 @@ import { useAuthStore} from "../service/docuauth";
 
 const router = useRouter();
 const authStore = useAuthStore();
-const username = user.email;
+const email = user.email;
 const password = user.password;
 
 // will trigger when form is submitted
 const handleLogin = async () => {
 // pass input values to pinia
-  await authStore.loginUser(username.value, password.value);
+  await authStore.loginUser(email.value, password.value);
 
 // no error -> dashboard
   if (!authStore.errorMsg) {
