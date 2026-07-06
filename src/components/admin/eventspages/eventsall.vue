@@ -1,6 +1,6 @@
 <script>
 import { ref, computed, onMounted } from 'vue'
-import { fetchAllEvents } from '../../service/docustore' 
+import { fetchAllEvents } from '../../../service/docustore.js' 
 
 const currentFilter = ref('All Events')
 const eventsList = ref([])
