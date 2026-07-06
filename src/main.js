@@ -1,18 +1,16 @@
-// root directory (all connections will be done here)
+// root directory 
 import { createApp } from 'vue'
 import router from './router'
 import App from './App.vue'
 import './assets/main.css'
-import LiquidGlass from '@wxperia/liquid-glass-vue'
 import { createPinia } from 'pinia'
-
 
 const pinia = createPinia()
 
+// Create the app instance first
+const app = createApp(App)
 
-createApp(App)
-  .use(router)
-  .use(pinia)
-  .mount('#app')
-  .use(LiquidGlass) 
+app.use(router)
+app.use(pinia)
 
+app.mount('#app')

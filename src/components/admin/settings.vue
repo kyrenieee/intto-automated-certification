@@ -1,14 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue' //unmounted - end of component lifecycle
 import { useRouter } from 'vue-router'
-import { useDocuStore } from '../../service/docustore';
-
-
-onMounted(() => {
-        const docuStore = useDocuStore();
-        docuStore.fetchDocuments();
-        docuStore.readd
-});
 
 </script>
 

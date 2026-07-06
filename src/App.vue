@@ -1,16 +1,6 @@
 <script setup>
 import navbar from './components/navbar.vue'
 import login from './components/login.vue'
-
-import { useDocuStore } from '../src/service/docustore.js';
-import { onMounted } from 'vue'
-// will be ran once when the component is mounted
-//  docuprevent looping by checking if the documents have already been fetched
-onMounted(() => {
-        const docuStore = useDocuStore();Store.readDocument();
-    });
-    // if routerview=login, then hide navbar
-    
     
 </script>
 

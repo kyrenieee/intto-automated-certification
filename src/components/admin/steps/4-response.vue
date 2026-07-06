@@ -2,17 +2,21 @@
 import { useRouter } from 'vue-router'
 import { createEventInFirestore } from '../../service/docustore'
 
+const props = defineProps({
+  eventForm: Object
+})
+
 const router = useRouter()
 
 const handleCreateEvent = async () => {
   try {
-    // wala pa data pero may backend placeholder :D
+    // data format for firestore
     const newEvent = {
       title: props.eventForm.name || 'Untitled Event',
       date: props.eventForm.endDate, 
       time: props.eventForm.endTime,
       location: props.eventForm.location,
-      scans: '0',  
+      scans: '0', 
       certs: '0', 
       survey: '0%', 
     }
@@ -20,12 +24,12 @@ const handleCreateEvent = async () => {
     // to firestore
     await createEventInFirestore(newEvent)
 
-    // redirect to eventslist
-    router.push('./src./components./admin./eventspages./eventsall.vue') 
+    // to events page
+    router.push('/events-all') 
 
   } catch (error) {
-    // event failed to be created
     alert("Failed to create event. Please try again.")
+    console.error(error)
   }
 }
 

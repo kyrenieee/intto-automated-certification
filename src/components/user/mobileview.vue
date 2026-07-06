@@ -50,7 +50,7 @@ onMounted(() => {
         <p class="text-gray-300 text-xs mt-2">April 7, 2026 • UC Theater</p>
       </div>
 
-      <div class="bg-white text-[#1A2621] rounded-t-[2rem] p-8 flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
+      <div class="bg-white text-[#1A2621] rounded-t-4xl p-8 flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
         <div class="flex items-center gap-2 mb-2">
           <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
           <h2 class="text-lg font-bold">Get your certificate</h2>
@@ -193,7 +193,7 @@ onMounted(() => {
       <div v-if="currentStep === 3" class="flex flex-col items-center gap-6 flex-1">
         <p class="text-[15px] font-medium mt-4">Your certificate is ready!</p>
         
-        <div class="w-full aspect-[4/3] bg-white rounded-2xl border-4 border-[#3D5248] p-2 shadow-2xl relative overflow-hidden flex items-center justify-center">
+        <div class="w-full aspect-4/3 bg-white rounded-2xl border-4 border-[#3D5248] p-2 shadow-2xl relative overflow-hidden flex items-center justify-center">
            <div class="text-center text-[#1C2D27] flex flex-col items-center p-4">
               <span class="text-[10px] font-bold text-green-700 tracking-wider">CERTIFICATE OF RECOGNITION</span>
               <p class="text-[8px] mt-2">This Certificate is Proudly Presented to</p>
@@ -209,7 +209,7 @@ onMounted(() => {
         <button 
           v-if="currentStep === 1 || currentStep === 2" 
           @click="nextStep" 
-          class="w-3/4 max-w-[200px] py-2.5 rounded-full border border-[rgba(255,255,255,0.3)] hover:bg-[rgba(255,255,255,0.1)] text-white text-sm font-medium transition-colors"
+          class="w-3/4 max-w-50 py-2.5 rounded-full border border-[rgba(255,255,255,0.3)] hover:bg-[rgba(255,255,255,0.1)] text-white text-sm font-medium transition-colors"
         >
           Next
         </button>
@@ -217,7 +217,7 @@ onMounted(() => {
         <button 
           v-if="currentStep === 3" 
           @click="handleDownload"
-          class="w-3/4 max-w-[200px] py-2.5 rounded-full border border-[rgba(255,255,255,0.3)] hover:bg-[rgba(255,255,255,0.1)] text-white text-sm font-medium transition-colors"
+          class="w-3/4 max-w-50 py-2.5 rounded-full border border-[rgba(255,255,255,0.3)] hover:bg-[rgba(255,255,255,0.1)] text-white text-sm font-medium transition-colors"
         >
           Download
         </button>

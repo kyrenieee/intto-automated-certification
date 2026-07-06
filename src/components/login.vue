@@ -5,8 +5,8 @@ import { useAuthStore} from "../service/docuauth";
 
 const router = useRouter();
 const authStore = useAuthStore();
-const email = user.email;
-const password = user.password;
+const email = ref('');
+const password = ref('');
 
 // will trigger when form is submitted
 const handleLogin = async () => {
@@ -60,7 +60,7 @@ const handleLogin = async () => {
               Username
             </span>
             <input
-              v-model="username"
+              v-model="email"
               type="email"
               autocomplete="username"
               placeholder="inttoadmin@autocert.com"
