@@ -14,6 +14,7 @@
 </template> -->
 
 <template>
+  <navbar />
     <!-- 2. form builder -->
     <main
       class="w-full bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-3xl p-6 sm:p-10 flex flex-col gap-y-8"

@@ -203,13 +203,8 @@ const selectMonth = (index) => {
       </div>
       
       <div class="mt-6">
-        <RouterLink
-          to="/eventcal-details"
-         >
-        <!-- sched new event button -->
-        <button class="w-full h-11 text-md font-normal tracking-wide text-[rgba(255,255,255,0.95)] bg-[linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.08))] border border-[rgba(255,255,255,0.15)] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.12))] active:bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.16))] transition-all duration-200 rounded-full mb-6 shadow-sm">
+        <RouterLink to="/eventcaldetails" class="flex items-center justify-center w-full h-11 text-md font-normal tracking-wide text-[rgba(255,255,255,0.95)] bg-[linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.08))] border border-[rgba(255,255,255,0.15)] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.12))] active:bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.16))] transition-all duration-200 rounded-full mb-6 shadow-sm">
           Schedule New Event
-        </button>
         </RouterLink>
         <!-- legends -->
         <div class="flex flex-wrap justify-center items-center gap-x-3 gap-y-1 text-[10px] text-[rgba(255,255,255,0.4)]">
