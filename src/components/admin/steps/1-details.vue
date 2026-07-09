@@ -131,7 +131,9 @@ const MOCK_PLACES = [
   'University of the Cordilleras, Theater',
   'University of the Cordilleras, Gym ',
   'University of the Cordilleras, Canao Hall',
+  'University of the Cordilleras, InTTO', 
   'University of the Cordilleras',
+
 ]
 
 export default {
