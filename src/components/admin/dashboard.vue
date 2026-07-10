@@ -1,17 +1,6 @@
 <script setup>
 import { RouterLink } from "vue-router";
-// import { analytics } from "@/firebase/config";
-// import { logEvent } from "firebase/analytics";
 
-// const trackDashboardClick = (buttonName, extraMetadata = {}) => {
-//   if (analytics) {
-//     logEvent(analytics, 'dashboard_interaction', {
-//       button_name: buttonName,
-//       timestamp: new Date().toISOString(),
-//       ...extraMetadata
-//     });
-//   }
-// };
 </script>
 
 <template>

@@ -104,10 +104,11 @@ onMounted(() => {
       <!-- step 1-->
       <div v-if="currentStep === 1" class="flex flex-col gap-6 flex-1">
         <div>
-          <label class="block text-xs text-gray-300 mb-2 pl-1">* Your Full Name</label>
+          <label :for="nameFieldId" class="block text-xs text-gray-300 mb-2 pl-1">* Your Full Name</label>
           <input 
             v-model="store.formData.fullName"
             type="text" 
+            :id="nameFieldId"
             placeholder="Melinda A. Beninsig"
             class="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.15)] rounded-full px-5 py-3 text-sm focus:outline-none focus:border-[#729281] transition text-white placeholder-gray-500"
           >
