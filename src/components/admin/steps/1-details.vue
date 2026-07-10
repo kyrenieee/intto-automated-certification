@@ -85,12 +85,12 @@
             :value="localForm.location"
             @input="handleLocationInput"
             @focus="showLocationPicker = true"
-            @blur="setTimeout(() => (showLocationPicker = false), 250)"
+            @blur="hideLocationPickerDelayed"
             type="text"
             placeholder="Start typing an address or place name..."
             class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 placeholder:text-white/20 text-white pr-12"
           />
-          <!-- spinner / down arrow indicator -->
+          <!-- Spinner / Down Arrow indicator -->
           <span
             class="absolute right-5 top-3.5 text-xs text-white/30 pointer-events-none"
           >
@@ -125,7 +125,7 @@
 <script>
 import { reactive, ref, computed, watch } from 'vue'
 
-// replace with a real geocoding/places API call (Google Places, Mapbox, etc.)
+// Replace with a real geocoding/places API call (Google Places, Mapbox, etc.)
 const MOCK_PLACES = [
   'University of the Cordilleras, Auditorium',
   'University of the Cordilleras, Theater',
@@ -133,7 +133,6 @@ const MOCK_PLACES = [
   'University of the Cordilleras, Canao Hall',
   'University of the Cordilleras, InTTO', 
   'University of the Cordilleras',
-
 ]
 
 export default {
@@ -185,11 +184,18 @@ export default {
       showLocationPicker.value = false
     }
 
+    const hideLocationPickerDelayed = () => {
+      // delay so a mousedown on a result item fires before the list unmounts
+      setTimeout(() => {
+        showLocationPicker.value = false
+      }, 250)
+    }
+
     const isValid = computed(() =>
       Boolean(localForm.name && localForm.endDate && localForm.endTime && localForm.location)
     )
 
-    // keep parent's shared eventForm in sync
+    // Keep parent's shared eventForm in sync
     watch(
       localForm,
       (val) => emit('update:modelValue', { ...props.modelValue, ...val }),
@@ -208,6 +214,7 @@ export default {
       locationResults,
       handleLocationInput,
       selectLocation,
+      hideLocationPickerDelayed,
       isValid,
       handleNextStep,
     }

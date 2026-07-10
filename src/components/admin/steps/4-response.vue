@@ -1,27 +1,9 @@
 <script setup>
+import { ref, reactive, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { createEventInFirestore } from '../../../service/docustore'
-import { reactive, watch, defineProps, defineEmits } from 'vue'
 import { onSnapshot, collection, query } from 'firebase/firestore'
 import { db } from '../../../service/firebase-config.js'
-
-
-const eventsList = ref([])
-
-onMounted(() => {
-  const q = query(collection(db, 'events'))
-  
-  // onSnapshot creates a real-time listener
-  const unsubscribe = onSnapshot(q, (snapshot) => {
-    eventsList.value = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }))
-    isLoading.value = false
-  }, (error) => {
-    console.error("Error fetching events:", error)
-  })
-})
 
 // define props and emits
 const props = defineProps({
@@ -29,14 +11,41 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
-  eventForm: Object
+  eventForm: Object,
 })
 
 const emit = defineEmits(['update:modelValue', 'submit', 'back'])
 
-// lowgic yay
 const router = useRouter()
 let nextId = 1
+
+const eventsList = ref([])
+const isLoading = ref(true)
+let unsubscribeEventsListener = null
+
+onMounted(() => {
+  const q = query(collection(db, 'events'))
+
+  // onSnapshot creates a real-time listener
+  unsubscribeEventsListener = onSnapshot(
+    q,
+    (snapshot) => {
+      eventsList.value = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
+      isLoading.value = false
+    },
+    (error) => {
+      console.error('Error fetching events:', error)
+      isLoading.value = false
+    }
+  )
+})
+
+onBeforeUnmount(() => {
+  if (unsubscribeEventsListener) unsubscribeEventsListener()
+})
 
 const localQuestions = reactive(
   (props.modelValue.questions && props.modelValue.questions.length
@@ -74,26 +83,24 @@ const handleCreateEvent = async () => {
   try {
     const newEvent = {
       title: props.eventForm?.name || 'Untitled Event',
-      date: props.eventForm?.endDate || '', 
+      date: props.eventForm?.endDate || '',
       time: props.eventForm?.endTime || '',
       location: props.eventForm?.location || '',
-      scans: '0', 
-      certs: '0', 
-      survey: '0%', 
+      scans: '0',
+      certs: '0',
+      survey: '0%',
     }
     await createEventInFirestore(newEvent)
-    router.push('/events-all') 
+    router.push('/events-all')
   } catch (error) {
-    alert("Failed to create event. Please try again.")
+    alert('Failed to create event. Please try again.')
     console.error(error)
   }
 }
 
-// funct to handle the submit event from template
+// handles the submit event from the template
 const handleSubmit = () => {
-  // if this button should also create the event, call handleCreateEvent here
-  // or emit the submit event to the parent
-  handleCreateEvent() // call the function to create the event
+  handleCreateEvent()
   emit('submit')
 }
 </script>
@@ -131,7 +138,7 @@ const handleSubmit = () => {
       <div
         v-for="(question, index) in localQuestions"
         :key="question.id"
-        class="flex items-start bg-white/3 border border-white/8 rounded-2xl p-6 hover:bg-white/[8 transition group"
+        class="flex items-start bg-white/3 border border-white/8 rounded-2xl p-6 hover:bg-white/[0.05] transition group"
       >
         <div class="grid grid-cols-2 gap-0.5 text-gray-500 group-hover:text-gray-300 mr-5 mt-1.5 cursor-grab">
           <div class="w-1 h-1 bg-current rounded-full" v-for="n in 6" :key="n"></div>
@@ -220,7 +227,6 @@ const handleSubmit = () => {
     </div>
   </main>
 </template>
-
 
 <style scoped>
 </style>

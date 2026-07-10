@@ -15,17 +15,21 @@
 
       <button
         @click="handleNext"
-        :disabled="!localForm.templateFile"
+        :disabled="!canContinue"
         class="flex items-center gap-2 border border-white/40 text-white rounded-full px-6 py-3 text-sm font-medium bg-transparent hover:bg-white/10 transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
       >
-        Continue to Next Step
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        {{ isUploading ? 'Uploading…' : 'Continue to Next Step' }}
+        <svg v-if="!isUploading" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
         </svg>
+        <span
+          v-else
+          class="animate-spin inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+        ></span>
       </button>
     </div>
 
-    <!-- template upload? -->
+    <!-- template upload -->
     <label
       class="w-full h-80 sm:h-95.25 border-2 border-dashed border-[#d1d5dc] rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 transition-all duration-200 group"
       @dragover.prevent
@@ -62,7 +66,7 @@
       </div>
 
       <!-- Selected file preview -->
-      <div v-else class="flex flex-col items-center text-center px-6" @click.prevent>
+      <div v-else class="flex flex-col items-center text-center px-6 w-full" @click.prevent>
         <img
           v-if="previewUrl"
           :src="previewUrl"
@@ -70,6 +74,27 @@
           class="max-h-55 rounded-lg shadow-lg mb-4 object-contain"
         />
         <p class="text-white font-medium">{{ localForm.templateFile.name }}</p>
+
+        <!-- Upload progress -->
+        <div v-if="isUploading" class="w-full max-w-xs mt-3">
+          <div class="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+            <div
+              class="h-full bg-[#3b82f6] transition-all duration-150"
+              :style="{ width: uploadProgress + '%' }"
+            ></div>
+          </div>
+          <p class="text-xs text-gray-400 mt-1.5">Uploading… {{ uploadProgress }}%</p>
+        </div>
+
+        <p v-else-if="localForm.templateUrl" class="text-xs text-emerald-300 mt-2">
+          ✓ Uploaded to Cloudinary
+        </p>
+
+        <p v-if="uploadError" class="text-xs text-red-300 mt-2">
+          {{ uploadError }}
+          <button type="button" @click.stop.prevent="retryUpload" class="underline ml-1">Retry</button>
+        </p>
+
         <button
           type="button"
           @click.stop.prevent="clearFile"
@@ -92,7 +117,8 @@
 </template>
 
 <script>
-import { reactive, ref, computed, watch } from 'vue'
+import { reactive, ref, computed, watch, onBeforeUnmount } from 'vue'
+import { uploadToCloudinary } from '../../../utils/cloudinary.js'
 
 const MAX_FILE_SIZE = 15 * 1024 * 1024 // 15MB
 
@@ -108,10 +134,39 @@ export default {
   setup(props, { emit }) {
     const localForm = reactive({
       templateFile: props.modelValue.templateFile || null,
+      // hosted copy - this is what Step3Preview / Konva actually reads
+      templateUrl: props.modelValue.templateUrl || null,
+      templatePublicId: props.modelValue.templatePublicId || null,
     })
 
     const fileInput = ref(null)
     const previewUrl = ref(null)
+    const isUploading = ref(false)
+    const uploadProgress = ref(0)
+    const uploadError = ref('')
+
+    const runUpload = async (file) => {
+      isUploading.value = true
+      uploadProgress.value = 0
+      uploadError.value = ''
+
+      try {
+        const result = await uploadToCloudinary(file, {
+          folder: 'certificate-templates',
+          onProgress: (pct) => {
+            uploadProgress.value = pct
+          },
+        })
+        localForm.templateUrl = result.secureUrl
+        localForm.templatePublicId = result.publicId
+      } catch (err) {
+        uploadError.value = err.message || 'Upload failed. Please try again.'
+        localForm.templateUrl = null
+        localForm.templatePublicId = null
+      } finally {
+        isUploading.value = false
+      }
+    }
 
     const setFile = (file) => {
       if (!file) return
@@ -119,10 +174,20 @@ export default {
         alert('File is too large. Max size is 15MB.')
         return
       }
+
       localForm.templateFile = file
+      localForm.templateUrl = null
+      localForm.templatePublicId = null
 
       if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
       previewUrl.value = file.type.startsWith('image/') ? URL.createObjectURL(file) : null
+
+      // Upload right away so it's ready by the time the user clicks Continue
+      runUpload(file)
+    }
+
+    const retryUpload = () => {
+      if (localForm.templateFile) runUpload(localForm.templateFile)
     }
 
     const handleFileChange = (e) => {
@@ -135,10 +200,17 @@ export default {
 
     const clearFile = () => {
       localForm.templateFile = null
+      localForm.templateUrl = null
+      localForm.templatePublicId = null
+      uploadError.value = ''
       if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
       previewUrl.value = null
       if (fileInput.value) fileInput.value.value = ''
     }
+
+    onBeforeUnmount(() => {
+      if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
+    })
 
     watch(
       localForm,
@@ -146,8 +218,12 @@ export default {
       { deep: true }
     )
 
+    const canContinue = computed(
+      () => Boolean(localForm.templateFile) && Boolean(localForm.templateUrl) && !isUploading.value
+    )
+
     const handleNext = () => {
-      if (!localForm.templateFile) return
+      if (!canContinue.value) return
       emit('next')
     }
 
@@ -155,9 +231,14 @@ export default {
       localForm,
       fileInput,
       previewUrl,
+      isUploading,
+      uploadProgress,
+      uploadError,
+      canContinue,
       handleFileChange,
       handleDrop,
       clearFile,
+      retryUpload,
       handleNext,
     }
   },

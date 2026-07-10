@@ -117,13 +117,9 @@ export default {
     // so make sure variableMap exists before children start reading/writing it.
     if (!props.eventForm.variableMap) props.eventForm.variableMap = {}
 
-    const templatePreviewUrl = computed(() => {
-      const file = props.eventForm?.templateFile
-      if (file && file.type?.startsWith('image/')) {
-        return URL.createObjectURL(file)
-      }
-      return null
-    })
+    // Step2Template.vue uploads to Cloudinary and stores the hosted URL here,
+    // so this is what actually gets drawn - not a local object URL.
+    const templatePreviewUrl = computed(() => props.eventForm?.templateUrl || null)
 
     const isPlaced = (key) => Boolean(props.eventForm.variableMap[key])
 
