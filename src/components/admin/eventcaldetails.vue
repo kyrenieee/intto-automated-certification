@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full max-w-[1200px] mx-auto flex flex-col gap-y-6">
+  <div class="w-full max-w-300 mx-auto flex flex-col gap-y-6">
     <StepHeader :current-step="currentStep" :total-steps="4" />
 
     <Step1Details

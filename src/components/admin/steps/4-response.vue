@@ -100,7 +100,7 @@ const handleSubmit = () => {
       <div
         v-for="(question, index) in eventForm.questions"
         :key="question.id"
-        class="flex items-start bg-white/3 border border-white/8 rounded-2xl p-6 hover:bg-white/[0.05] transition group"
+        class="flex items-start bg-white/3 border border-white/8 rounded-2xl p-6 hover:bg-white/5 transition group"
       >
         <div class="grid grid-cols-2 gap-0.5 text-gray-500 group-hover:text-gray-300 mr-5 mt-1.5 cursor-grab">
           <div class="w-1 h-1 bg-current rounded-full" v-for="n in 6" :key="n"></div>
