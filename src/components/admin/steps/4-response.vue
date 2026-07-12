@@ -1,83 +1,45 @@
 <script setup>
-import { ref, reactive, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { createEventInFirestore } from '../../../service/docustore'
-import { onSnapshot, collection, query } from 'firebase/firestore'
-import { db } from '../../../service/firebase-config.js'
 
-// define props and emits
 const props = defineProps({
-  modelValue: {
+  eventForm: {
     type: Object,
-    default: () => ({}),
+    required: true,
   },
-  eventForm: Object,
 })
 
-const emit = defineEmits(['update:modelValue', 'submit', 'back'])
+const emit = defineEmits(['submit', 'back'])
 
 const router = useRouter()
 let nextId = 1
 
-const eventsList = ref([])
-const isLoading = ref(true)
-let unsubscribeEventsListener = null
-
-onMounted(() => {
-  const q = query(collection(db, 'events'))
-
-  // onSnapshot creates a real-time listener
-  unsubscribeEventsListener = onSnapshot(
-    q,
-    (snapshot) => {
-      eventsList.value = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }))
-      isLoading.value = false
+// same shared reactive eventForm passed through from eventcaldetails.vue -
+// initialize its questions array in place rather than keeping a disconnected
+if (!props.eventForm.questions || props.eventForm.questions.length === 0) {
+  props.eventForm.questions = [
+    { id: nextId++, type: 'text', text: 'What is your full name?' },
+    {
+      id: nextId++,
+      type: 'choice',
+      text: 'What is your age?',
+      options: ['18 - 24', '25 - 34', '35 - 44', '45 - 54', '55 - 64', '65+'],
     },
-    (error) => {
-      console.error('Error fetching events:', error)
-      isLoading.value = false
-    }
-  )
-})
-
-onBeforeUnmount(() => {
-  if (unsubscribeEventsListener) unsubscribeEventsListener()
-})
-
-const localQuestions = reactive(
-  (props.modelValue.questions && props.modelValue.questions.length
-    ? props.modelValue.questions
-    : [
-        { id: nextId++, type: 'text', text: 'What is your full name?' },
-        {
-          id: nextId++,
-          type: 'choice',
-          text: 'What is your age?',
-          options: ['18 - 24', '25 - 34', '35 - 44', '45 - 54', '55 - 64', '65+'],
-        },
-        { id: nextId++, type: 'rating', text: 'How would you rate this event overall?' },
-      ]
-  ).map((q) => ({ ...q }))
-)
+    { id: nextId++, type: 'rating', text: 'How would you rate this event overall?' },
+  ]
+} else {
+  nextId = Math.max(...props.eventForm.questions.map((q) => q.id)) + 1
+}
 
 const addQuestion = (type) => {
   const base = { id: nextId++, type, text: '' }
   if (type === 'choice') base.options = ['Option 1', 'Option 2']
-  localQuestions.push(base)
+  props.eventForm.questions.push(base)
 }
 
 const removeQuestion = (index) => {
-  localQuestions.splice(index, 1)
+  props.eventForm.questions.splice(index, 1)
 }
-
-watch(
-  localQuestions,
-  (val) => emit('update:modelValue', { ...props.modelValue, questions: [...val] }),
-  { deep: true }
-)
 
 const handleCreateEvent = async () => {
   try {
@@ -136,7 +98,7 @@ const handleSubmit = () => {
     <!-- questions collection -->
     <div class="flex flex-col gap-5 mb-8">
       <div
-        v-for="(question, index) in localQuestions"
+        v-for="(question, index) in eventForm.questions"
         :key="question.id"
         class="flex items-start bg-white/3 border border-white/8 rounded-2xl p-6 hover:bg-white/[0.05] transition group"
       >
@@ -196,7 +158,7 @@ const handleSubmit = () => {
         </div>
       </div>
 
-      <p v-if="localQuestions.length === 0" class="text-sm text-gray-400">
+      <p v-if="eventForm.questions.length === 0" class="text-sm text-gray-400">
         No questions yet — add one below.
       </p>
     </div>

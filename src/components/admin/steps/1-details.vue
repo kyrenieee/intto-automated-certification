@@ -43,7 +43,7 @@
           >Event Name*</span
         >
         <input
-          v-model="localForm.name"
+          v-model="eventForm.name"
           type="text"
           placeholder="e.g., Technodemo Day 7"
           class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 placeholder:text-white/20 text-white"
@@ -56,7 +56,7 @@
           >Event End Date*</span
         >
         <input
-          v-model="localForm.endDate"
+          v-model="eventForm.endDate"
           type="date"
           class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
         />
@@ -68,7 +68,7 @@
           >Event End Time*</span
         >
         <input
-          v-model="localForm.endTime"
+          v-model="eventForm.endTime"
           type="time"
           class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
         />
@@ -82,7 +82,7 @@
         >
         <div class="relative">
           <input
-            :value="localForm.location"
+            :value="eventForm.location"
             @input="handleLocationInput"
             @focus="showLocationPicker = true"
             @blur="hideLocationPickerDelayed"
@@ -90,7 +90,7 @@
             placeholder="Start typing an address or place name..."
             class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 placeholder:text-white/20 text-white pr-12"
           />
-          <!-- Spinner / Down Arrow indicator -->
+          <!-- spinner / down arrow indicator -->
           <span
             class="absolute right-5 top-3.5 text-xs text-white/30 pointer-events-none"
           >
@@ -123,35 +123,28 @@
 </template>
 
 <script>
-import { reactive, ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 
-// Replace with a real geocoding/places API call (Google Places, Mapbox, etc.)
+// replace with a real geocoding/places API call (Google Places, Mapbox, etc.)
 const MOCK_PLACES = [
+  'University of the Cordilleras',
   'University of the Cordilleras, Auditorium',
   'University of the Cordilleras, Theater',
-  'University of the Cordilleras, Gym ',
   'University of the Cordilleras, Canao Hall',
-  'University of the Cordilleras, InTTO', 
-  'University of the Cordilleras',
+  'University of the Cordilleras, InTTO',
+
 ]
 
 export default {
   name: 'Step1Details',
   props: {
-    modelValue: {
+    eventForm: {
       type: Object,
-      default: () => ({}),
+      required: true,
     },
   },
-  emits: ['update:modelValue', 'next'],
+  emits: ['next'],
   setup(props, { emit }) {
-    const localForm = reactive({
-      name: props.modelValue.name || '',
-      endDate: props.modelValue.endDate || '',
-      endTime: props.modelValue.endTime || '',
-      location: props.modelValue.location || '',
-    })
-
     const isSearching = ref(false)
     const showLocationPicker = ref(false)
     const locationResults = ref([])
@@ -159,7 +152,9 @@ export default {
 
     const handleLocationInput = (e) => {
       const value = e.target.value
-      localForm.location = value
+      // Mutating the shared eventForm directly - this is the same reactive
+      // object that flows through to Step3Preview/CertificateCanvas.
+      props.eventForm.location = value
       showLocationPicker.value = true
 
       clearTimeout(searchTimeout)
@@ -179,7 +174,7 @@ export default {
     }
 
     const selectLocation = (place) => {
-      localForm.location = place
+      props.eventForm.location = place
       locationResults.value = []
       showLocationPicker.value = false
     }
@@ -192,14 +187,12 @@ export default {
     }
 
     const isValid = computed(() =>
-      Boolean(localForm.name && localForm.endDate && localForm.endTime && localForm.location)
-    )
-
-    // Keep parent's shared eventForm in sync
-    watch(
-      localForm,
-      (val) => emit('update:modelValue', { ...props.modelValue, ...val }),
-      { deep: true }
+      Boolean(
+        props.eventForm.name &&
+          props.eventForm.endDate &&
+          props.eventForm.endTime &&
+          props.eventForm.location
+      )
     )
 
     const handleNextStep = () => {
@@ -208,7 +201,7 @@ export default {
     }
 
     return {
-      localForm,
+      eventForm: props.eventForm,
       isSearching,
       showLocationPicker,
       locationResults,

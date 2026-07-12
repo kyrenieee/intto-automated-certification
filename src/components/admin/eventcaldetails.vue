@@ -1,15 +1,15 @@
 <template>
-  <div class="w-full max-w-300 mx-auto flex flex-col gap-y-6">
+  <div class="w-full max-w-[1200px] mx-auto flex flex-col gap-y-6">
     <StepHeader :current-step="currentStep" :total-steps="4" />
 
     <Step1Details
       v-if="currentStep === 1"
-      v-model="eventForm"
+      :event-form="eventForm"
       @next="goNext"
     />
     <Step2Template
       v-if="currentStep === 2"
-      v-model="eventForm"
+      :event-form="eventForm"
       @next="goNext"
       @back="goBack"
     />
@@ -21,7 +21,7 @@
     />
     <Step4Response
       v-if="currentStep === 4"
-      v-model="eventForm"
+      :event-form="eventForm"
       @submit="saveEvent"
       @back="goBack"
     />
@@ -48,13 +48,15 @@ export default {
   setup() {
     const currentStep = ref(1)
 
-    // Shared state across every step, filled in as the user progresses
+    // single shared reactive object, passed to every step as a plain prop.
     const eventForm = reactive({
       name: '',
       endDate: '',
       endTime: '',
       location: '',
       templateFile: null,
+      templateUrl: null,
+      templatePublicId: null,
       variableMap: {},
       questions: [],
     })
@@ -68,8 +70,19 @@ export default {
     }
 
     const saveEvent = () => {
-      // TODO: replace with real API call / store action
-      console.log('Saving event:', JSON.parse(JSON.stringify(eventForm)))
+      // 4-response.vue's handleCreateEvent already persists the event to Firestore and redirects to /events-all - nothing left to do here except reset this wizard's local state, so if the user ever lands back on /eventcaldetails  it starts a fresh event instead of showing the one that was just created.
+      currentStep.value = 1
+      Object.assign(eventForm, {
+        name: '',
+        endDate: '',
+        endTime: '',
+        location: '',
+        templateFile: null,
+        templateUrl: null,
+        templatePublicId: null,
+        variableMap: {},
+        questions: [],
+      })
     }
 
     return {

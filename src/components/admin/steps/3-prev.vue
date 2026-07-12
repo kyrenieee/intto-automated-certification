@@ -46,14 +46,20 @@
                 </span>
               </button>
 
-              <!-- inline label editor, only shown once placed -->
+              <!-- read-only preview of what will actually render, sourced from eventForm -->
               <div v-if="isPlaced(variable.key)" class="px-5 pb-5">
-                <label class="text-xs text-gray-400 block mb-1.5">Label on certificate</label>
-                <input
-                  v-model="eventForm.variableMap[variable.key].text"
-                  type="text"
-                  class="w-full h-9 px-4 bg-black/20 border border-white/10 focus:border-white/30 text-sm rounded-full outline-none text-white"
-                />
+                <p class="text-xs text-gray-400 mb-1">
+                  {{ variable.key === 'name' ? 'Filled per participant at generation time' : 'From Step 1' }}
+                </p>
+                <p class="text-sm font-medium text-white/90 bg-black/20 border border-white/10 rounded-full px-4 py-2">
+                  {{ fieldValues[variable.key] }}
+                </p>
+                <p v-if="variable.key === 'event_name' && !eventForm.name" class="text-xs text-amber-300 mt-1.5">
+                  No event name set yet - go back to Step 1.
+                </p>
+                <p v-if="variable.key === 'date' && !eventForm.endDate" class="text-xs text-amber-300 mt-1.5">
+                  No date set yet - go back to Step 1.
+                </p>
               </div>
             </div>
           </div>
@@ -79,9 +85,14 @@
       <div class="lg:col-span-7 lg:pl-6">
         <div class="w-full aspect-16/10 bg-white rounded-2xl shadow-2xl overflow-hidden">
           <CertificateCanvas
+            v-if="templatePreviewUrl"
             :template-url="templatePreviewUrl"
             :variable-map="eventForm.variableMap"
+            :field-values="fieldValues"
           />
+          <div v-else class="w-full h-full flex items-center justify-center text-sm text-gray-500">
+            No template uploaded yet - go back to Step 2.
+          </div>
         </div>
         <p class="text-xs text-gray-400 mt-3">
           Drag a placed field to reposition it. Positions are saved relative to the
@@ -102,7 +113,7 @@ export default {
   props: {
     eventForm: {
       type: Object,
-      default: () => ({}),
+      required: true,
     },
   },
   emits: ['next', 'back'],
@@ -113,13 +124,26 @@ export default {
       { key: 'date', label: 'Completion Date', required: false },
     ]
 
-    // eventForm is the same reactive object all the way up from EventCalDetails.vue,
+    // eventForm is the same reactive object all the way up from eventcaldetails.vue,
     // so make sure variableMap exists before children start reading/writing it.
     if (!props.eventForm.variableMap) props.eventForm.variableMap = {}
 
-    // Step2Template.vue uploads to Cloudinary and stores the hosted URL here,
-    // so this is what actually gets drawn - not a local object URL.
-    const templatePreviewUrl = computed(() => props.eventForm?.templateUrl || null)
+    const templatePreviewUrl = computed(() => props.eventForm.templateUrl || null)
+
+    const formattedDate = computed(() => {
+      if (!props.eventForm.endDate) return null
+      const d = new Date(props.eventForm.endDate)
+      if (Number.isNaN(d.getTime())) return props.eventForm.endDate
+      return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+    })
+
+   
+    // 'name' has no real value yet - it's a merge token resolved per participant later.
+    const fieldValues = computed(() => ({
+      name: '{{ Participant Name }}',
+      event_name: props.eventForm.name || 'Event name not set',
+      date: formattedDate.value || 'Date not set',
+    }))
 
     const isPlaced = (key) => Boolean(props.eventForm.variableMap[key])
 
@@ -134,15 +158,16 @@ export default {
       map[variable.key] = {
         xRatio: 0.5,
         yRatio: 0.3 + placedCount * 0.15,
-        text: variable.label,
         fontSize: 28,
         fill: '#0c4a43',
       }
     }
 
     return {
+      eventForm: props.eventForm,
       variables,
       templatePreviewUrl,
+      fieldValues,
       isPlaced,
       toggleVariable,
     }

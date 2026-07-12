@@ -1,31 +1,63 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { fetchAllEvents } from '../../service/docustore.js'
 
-// --- State Management ---
-const selectedYear = ref(2026)
-const selectedMonthIndex = ref(6) // 6 = July (0-indexed)
-const selectedDay = ref(20)
+// --- dtate management ---
 
-// --- Dropdown States ---
+const today = new Date()
+const selectedYear = ref(today.getFullYear())
+const selectedMonthIndex = ref(today.getMonth())
+const selectedDay = ref(today.getDate())
+
+// --- dropdown States ---
 const showYearDropdown = ref(false)
 const showMonthDropdown = ref(false)
 
-// --- Constants ---
+// --- constants ---
 const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const monthNames = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
 ]
 
-// --- Mock Event Data (Matches original indicator types) ---
-const mockEvents = ref({
-  '2026-07-02': 'finished',
-  '2026-07-07': 'whole',
-  '2026-07-10': 'whole',
-  '2026-07-14': 'half'
+// --- fetched from Firestore event data---
+const eventsList = ref([])
+const isLoadingEvents = ref(true)
+const eventsError = ref('')
+
+onMounted(async () => {
+  try {
+    eventsList.value = await fetchAllEvents()
+  } catch (err) {
+    console.error('Failed to load events for calendar:', err)
+    eventsError.value = 'Could not load booked events.'
+  } finally {
+    isLoadingEvents.value = false
+  }
 })
 
-// --- Computed Calendar Grid Math ---
+// events grouped by their date string ('YYYY-MM-DD', same format created in
+// 4-response.vue's handleCreateEvent), so a day can show more than one event?? but should not? 
+const eventsByDate = computed(() => {
+  const map = {}
+  for (const event of eventsList.value) {
+    if (!event.date) continue
+    if (!map[event.date]) map[event.date] = []
+    map[event.date].push(event)
+  }
+  return map
+})
+
+const todayString = computed(() => new Date().toISOString().split('T')[0])
+
+// there's no "half day" concept yet will add start date and time in create event?
+const statusForDate = (dateString) => {
+  if (dateString === todayString.value) return 'today'
+  if (dateString < todayString.value) return 'finished'
+  return 'upcoming'
+}
+
+// --- computed calendar grid math ---
 const currentMonthName = computed(() => monthNames[selectedMonthIndex.value])
 
 const calendarDays = computed(() => {
@@ -75,10 +107,11 @@ const selectedDayName = computed(() => {
   return dateObj.toLocaleDateString('en-US', { weekday: 'long' })
 })
 
-const hasEventOnSelectedDay = computed(() => {
-  const activeKey = `${selectedYear.value}-${String(selectedMonthIndex.value + 1).padStart(2, '0')}-${String(selectedDay.value).padStart(2, '0')}`
-  return mockEvents.value[activeKey] || null
-})
+const selectedDateString = computed(
+  () => `${selectedYear.value}-${String(selectedMonthIndex.value + 1).padStart(2, '0')}-${String(selectedDay.value).padStart(2, '0')}`
+)
+
+const selectedDayEvents = computed(() => eventsByDate.value[selectedDateString.value] || [])
 
 // --- actions ---
 const handleDayClick = (day) => {
@@ -102,7 +135,7 @@ const selectMonth = (index) => {
 
 <template>
   <div class="w-full max-w-5xl p-5 bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] mx-auto grid grid-cols-1 rounded-4xl lg:grid-cols-3 gap-6 font-poppins text-white px-4 ">
-    
+
     <!-- left panel: calendar dates -->
     <section class="lg:col-span-2 bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-3xl p-6 flex flex-col justify-between">
       <div>
@@ -110,7 +143,7 @@ const selectMonth = (index) => {
         <div class="flex items-center space-x-4 mb-6 relative">
           <!-- year dropdown -->
           <div class="relative">
-            <button 
+            <button
               @click="showYearDropdown = !showYearDropdown; showMonthDropdown = false"
               class="flex items-center space-x-1.5 text-lg font-semibold text-[rgba(255,255,255,0.95)] hover:text-white transition"
             >
@@ -126,7 +159,7 @@ const selectMonth = (index) => {
 
           <!-- month dropdown -->
           <div class="relative">
-            <button 
+            <button
               @click="showMonthDropdown = !showMonthDropdown; showYearDropdown = false"
               class="flex items-center space-x-1.5 text-lg font-semibold text-[rgba(255,255,255,0.95)] hover:text-white transition"
             >
@@ -139,6 +172,9 @@ const selectMonth = (index) => {
               </button>
             </div>
           </div>
+
+          <span v-if="isLoadingEvents" class="text-[11px] text-[rgba(255,255,255,0.35)]">Loading events…</span>
+          <span v-else-if="eventsError" class="text-[11px] text-red-300">{{ eventsError }}</span>
         </div>
 
         <!-- weekdays -->
@@ -148,8 +184,8 @@ const selectMonth = (index) => {
 
         <!-- numeric dates grid-->
         <div class="grid grid-cols-7 gap-y-5 text-center items-center justify-items-center">
-          <div 
-            v-for="(day, index) in calendarDays" 
+          <div
+            v-for="(day, index) in calendarDays"
             :key="index"
             @click="handleDayClick(day)"
             class="relative w-10 h-12 flex flex-col items-center justify-start pt-1.5 rounded-xl cursor-pointer transition select-none group"
@@ -160,14 +196,14 @@ const selectMonth = (index) => {
           >
             <span class="text-sm font-medium z-10">{{ String(day.dayNumber).padStart(2, '0') }}</span>
 
-            <!-- status dots/legends -->
-            <span 
-              v-if="day.isCurrentMonth && mockEvents[day.dateString]"
+            <!-- status dots: color reflects whether the booked event(s) on that day are finished, today, or upcoming will change back to half day full day when create event is fixewd-->
+            <span
+              v-if="day.isCurrentMonth && eventsByDate[day.dateString]"
               class="absolute bottom-1.5 w-1.5 h-1.5 rounded-full"
               :class="{
-                'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]': mockEvents[day.dateString] === 'whole',
-                'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]': mockEvents[day.dateString] === 'half',
-                'bg-white/30': mockEvents[day.dateString] === 'finished'
+                'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]': statusForDate(day.dateString) === 'upcoming',
+                'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]': statusForDate(day.dateString) === 'today',
+                'bg-white/30': statusForDate(day.dateString) === 'finished'
               }"
             ></span>
           </div>
@@ -181,7 +217,7 @@ const selectMonth = (index) => {
         <h3 class="text-[rgba(255,255,255,0.45)] text-medium font-medium tracking-widest uppercase mt-2 mb-4">
           {{ currentMonthName }}
         </h3>
-        
+
         <h1 class="text-9xl font-4xl tracking-tight text-white my-3 select-none">
           {{ String(selectedDay).padStart(2, '0') }}
         </h1>
@@ -190,18 +226,36 @@ const selectMonth = (index) => {
           {{ selectedDayName }}
         </p>
 
-        <div class="py-4    text-xs tracking-wide">
-          <p v-if="!hasEventOnSelectedDay" class="text-[rgba(255,255,255,0.3)]">
+        <div class="py-4 text-xs tracking-wide">
+          <p v-if="isLoadingEvents" class="text-[rgba(255,255,255,0.3)]">Loading events…</p>
+          <p v-else-if="selectedDayEvents.length === 0" class="text-[rgba(255,255,255,0.3)]">
             No scheduled event.
           </p>
-          <p v-else class="text-emerald-400 font-medium capitalize">
-            Scheduled: <span class="text-white">{{ hasEventOnSelectedDay }} Day Event</span>
-            <!-- + event details -->
-             
-          </p>
+          <div v-else class="flex flex-col gap-y-3 text-left">
+            <div
+              v-for="event in selectedDayEvents"
+              :key="event.id"
+              class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3"
+            >
+              <p class="text-white font-medium text-sm">{{ event.title }}</p>
+              <p class="text-[rgba(255,255,255,0.5)] text-[11px] mt-1">
+                {{ event.time || 'Time TBD' }} • {{ event.location || 'Location TBD' }}
+              </p>
+              <span
+                class="inline-block mt-2 text-[10px] font-medium px-2 py-0.5 rounded-full capitalize"
+                :class="{
+                  'bg-emerald-400/20 text-emerald-300': statusForDate(event.date) === 'upcoming',
+                  'bg-amber-400/20 text-amber-300': statusForDate(event.date) === 'today',
+                  'bg-white/10 text-white/50': statusForDate(event.date) === 'finished',
+                }"
+              >
+                {{ statusForDate(event.date) }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
-      
+
       <div class="mt-6">
         <RouterLink to="/eventcaldetails" class="flex items-center justify-center w-full h-11 text-md font-normal tracking-wide text-[rgba(255,255,255,0.95)] bg-[linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.08))] border border-[rgba(255,255,255,0.15)] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.12))] active:bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.16))] transition-all duration-200 rounded-full mb-6 shadow-sm">
           Schedule New Event
@@ -210,11 +264,11 @@ const selectMonth = (index) => {
         <div class="flex flex-wrap justify-center items-center gap-x-3 gap-y-1 text-[10px] text-[rgba(255,255,255,0.4)]">
           <div class="flex items-center space-x-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.4)]"></span>
-            <span>Whole Day</span>
+            <span>Upcoming</span>
           </div>
           <div class="flex items-center space-x-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.4)]"></span>
-            <span>Half Day</span>
+            <span>Today</span>
           </div>
           <div class="flex items-center space-x-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-white/30"></span>

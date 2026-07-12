@@ -43,7 +43,7 @@
         @change="handleFileChange"
       />
 
-      <div v-if="!localForm.templateFile" class="flex flex-col items-center text-center px-6">
+      <div v-if="!eventForm.templateFile" class="flex flex-col items-center text-center px-6">
         <svg class="w-12 h-12 text-[#d1d5dc] mb-3 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"></path>
         </svg>
@@ -73,7 +73,7 @@
           alt="Template preview"
           class="max-h-55 rounded-lg shadow-lg mb-4 object-contain"
         />
-        <p class="text-white font-medium">{{ localForm.templateFile.name }}</p>
+        <p class="text-white font-medium">{{ eventForm.templateFile.name }}</p>
 
         <!-- Upload progress -->
         <div v-if="isUploading" class="w-full max-w-xs mt-3">
@@ -86,9 +86,18 @@
           <p class="text-xs text-gray-400 mt-1.5">Uploading… {{ uploadProgress }}%</p>
         </div>
 
-        <p v-else-if="localForm.templateUrl" class="text-xs text-emerald-300 mt-2">
-          ✓ Uploaded to Cloudinary
-        </p>
+        <!-- Concrete confirmation the file actually made it to Cloudinary -->
+        <div v-else-if="eventForm.templateUrl" class="mt-2 flex flex-col items-center gap-1">
+          <p class="text-xs text-emerald-300">✓ Uploaded to Cloudinary</p>
+          <a
+            :href="eventForm.templateUrl"
+            target="_blank"
+            rel="noopener"
+            class="text-xs text-blue-300 hover:text-blue-200 underline"
+          >
+            View uploaded file ↗
+          </a>
+        </div>
 
         <p v-if="uploadError" class="text-xs text-red-300 mt-2">
           {{ uploadError }}
@@ -117,28 +126,21 @@
 </template>
 
 <script>
-import { reactive, ref, computed, watch, onBeforeUnmount } from 'vue'
-import { uploadToCloudinary } from '../../../utils/cloudinary.js'
+import { ref, computed, onBeforeUnmount } from 'vue'
+import { uploadToCloudinary } from '../../../utils/cloudinary'
 
 const MAX_FILE_SIZE = 15 * 1024 * 1024 // 15MB
 
 export default {
   name: 'Step2Template',
   props: {
-    modelValue: {
+    eventForm: {
       type: Object,
-      default: () => ({}),
+      required: true,
     },
   },
-  emits: ['update:modelValue', 'next', 'back'],
+  emits: ['next', 'back'],
   setup(props, { emit }) {
-    const localForm = reactive({
-      templateFile: props.modelValue.templateFile || null,
-      // hosted copy - this is what Step3Preview / Konva actually reads
-      templateUrl: props.modelValue.templateUrl || null,
-      templatePublicId: props.modelValue.templatePublicId || null,
-    })
-
     const fileInput = ref(null)
     const previewUrl = ref(null)
     const isUploading = ref(false)
@@ -157,12 +159,16 @@ export default {
             uploadProgress.value = pct
           },
         })
-        localForm.templateUrl = result.secureUrl
-        localForm.templatePublicId = result.publicId
+        props.eventForm.templateUrl = result.secureUrl
+        props.eventForm.templatePublicId = result.publicId
+
+        // the POST to api.cloudinary.com, or open this URL directly.
+        console.log('[Cloudinary] template uploaded:', result.secureUrl)
       } catch (err) {
         uploadError.value = err.message || 'Upload failed. Please try again.'
-        localForm.templateUrl = null
-        localForm.templatePublicId = null
+        props.eventForm.templateUrl = null
+        props.eventForm.templatePublicId = null
+        console.error('[Cloudinary] upload failed:', err)
       } finally {
         isUploading.value = false
       }
@@ -175,19 +181,19 @@ export default {
         return
       }
 
-      localForm.templateFile = file
-      localForm.templateUrl = null
-      localForm.templatePublicId = null
+      props.eventForm.templateFile = file
+      props.eventForm.templateUrl = null
+      props.eventForm.templatePublicId = null
 
       if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
       previewUrl.value = file.type.startsWith('image/') ? URL.createObjectURL(file) : null
 
-      // Upload right away so it's ready by the time the user clicks Continue
+    
       runUpload(file)
     }
 
     const retryUpload = () => {
-      if (localForm.templateFile) runUpload(localForm.templateFile)
+      if (props.eventForm.templateFile) runUpload(props.eventForm.templateFile)
     }
 
     const handleFileChange = (e) => {
@@ -199,9 +205,9 @@ export default {
     }
 
     const clearFile = () => {
-      localForm.templateFile = null
-      localForm.templateUrl = null
-      localForm.templatePublicId = null
+      props.eventForm.templateFile = null
+      props.eventForm.templateUrl = null
+      props.eventForm.templatePublicId = null
       uploadError.value = ''
       if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
       previewUrl.value = null
@@ -212,14 +218,11 @@ export default {
       if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
     })
 
-    watch(
-      localForm,
-      (val) => emit('update:modelValue', { ...props.modelValue, ...val }),
-      { deep: true }
-    )
-
     const canContinue = computed(
-      () => Boolean(localForm.templateFile) && Boolean(localForm.templateUrl) && !isUploading.value
+      () =>
+        Boolean(props.eventForm.templateFile) &&
+        Boolean(props.eventForm.templateUrl) &&
+        !isUploading.value
     )
 
     const handleNext = () => {
@@ -228,7 +231,7 @@ export default {
     }
 
     return {
-      localForm,
+      eventForm: props.eventForm,
       fileInput,
       previewUrl,
       isUploading,

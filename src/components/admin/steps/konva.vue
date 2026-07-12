@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, markRaw } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch, markRaw, nextTick } from 'vue'
 import Konva from 'konva'
 
 const props = defineProps({
@@ -7,12 +7,15 @@ const props = defineProps({
     type: String,
     default: null,
   },
-  // reactive object owned by the parent's eventForm, e.g.
-  // { name: { xRatio, yRatio, text, fontSize, fill }, date: {...} }
-  // mutated directly on drag - same reactive reference all the way up to EventCalDetails.vue.
+  
   variableMap: {
     type: Object,
     required: true,
+  },
+  // key -> display string, e.g. { name: '{{ Participant Name }}', event_name: 'Technodemo Day 7' }
+  fieldValues: {
+    type: Object,
+    default: () => ({}),
   },
 })
 
@@ -27,6 +30,8 @@ let resizeObserver = null
 
 // key -> Konva.Text node, kept outside Vue's reactivity so Konva instances never get proxied
 const textNodes = new Map()
+
+const displayText = (key) => props.fieldValues[key] ?? key
 
 const fitCover = (imgW, imgH, boxW, boxH) => {
   const imgRatio = imgW / imgH
@@ -73,7 +78,7 @@ const createTextNode = (key) => {
   const entry = props.variableMap[key]
   const node = markRaw(
     new Konva.Text({
-      text: entry.text || key,
+      text: displayText(key),
       fontFamily: 'Poppins, sans-serif',
       fontStyle: '600',
       fontSize: entry.fontSize || 28,
@@ -122,10 +127,14 @@ const syncNodesToVariableMap = () => {
   for (const key of currentKeys) {
     if (!textNodes.has(key)) createTextNode(key)
   }
+  // keep placed nodes above the background image
+  for (const node of textNodes.values()) node.moveToTop()
   layer.batchDraw()
 }
 
 const loadTemplateImage = (url) => {
+  if (!stage) return
+
   if (!url) {
     if (bgImageNode) {
       bgImageNode.destroy()
@@ -138,24 +147,28 @@ const loadTemplateImage = (url) => {
 
   const img = new window.Image()
   img.crossOrigin = 'anonymous'
+
   img.onload = () => {
     templateImg = img
 
     if (bgImageNode) bgImageNode.destroy()
     bgImageNode = markRaw(new Konva.Image({ image: img }))
-    // draw background image below the bg rect fallback but above nothing else
     layer.add(bgImageNode)
     bgImageNode.moveToBottom()
     positionBackground()
 
-    // keep text nodes above the image
     for (const node of textNodes.values()) node.moveToTop()
     layer.batchDraw()
   }
+
+  img.onerror = () => {
+    console.error('[CertificateCanvas] Failed to load template image:', url)
+  }
+
   img.src = url
 }
 
-onMounted(() => {
+const initStage = () => {
   const { width, height } = getStageSize()
 
   stage = markRaw(
@@ -185,6 +198,14 @@ onMounted(() => {
     layer.batchDraw()
   })
   resizeObserver.observe(containerEl.value)
+}
+
+onMounted(async () => {
+  // guard against the container having zero size on the very first tick
+  // (e.g. layout not settled yet) before Konva measures it
+  await nextTick()
+  if (!containerEl.value) return
+  initStage()
 })
 
 onBeforeUnmount(() => {
@@ -194,15 +215,18 @@ onBeforeUnmount(() => {
 
 watch(() => props.templateUrl, (url) => loadTemplateImage(url))
 
-// deep watch so adding/removing keys (from the parent's toggle) syncs nodes,
-// and editing entry.text updates the node label in place
+// keys added/removed (place/remove a field) -> create/destroy nodes
 watch(
-  () => props.variableMap,
-  (map) => {
-    syncNodesToVariableMap()
+  () => Object.keys(props.variableMap).join(','),
+  () => syncNodesToVariableMap()
+)
+
+// live text values changing (e.g. user edits Event Name back in Step 1)
+watch(
+  () => props.fieldValues,
+  (vals) => {
     for (const [key, node] of textNodes.entries()) {
-      const entry = map[key]
-      if (entry) node.text(entry.text || key)
+      node.text(vals[key] ?? key)
     }
     layer?.batchDraw()
   },
