@@ -8,7 +8,7 @@
       class="flex items-center gap-3 transition-opacity duration-300"
       :class="currentStep === index + 1 ? 'opacity-100' : 'opacity-40'"
     >
-      <!-- Circle Indicator -->
+      <!-- circle indicator -->
       <div
         class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border transition-all duration-200"
         :class="
@@ -20,7 +20,7 @@
         {{ index + 1 }}
       </div>
 
-      <!-- Text Label -->
+      <!-- text label -->
       <div class="flex flex-col text-left">
         <span class="text-[10px] uppercase tracking-widest text-white/50 leading-none">
           Step {{ index + 1 }}

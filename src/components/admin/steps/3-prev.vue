@@ -20,7 +20,7 @@
               class="rounded-4xl border transition-all"
               :class="
                 isPlaced(variable.key)
-                  ? 'bg-emerald-400/10 border-emerald-300/40'
+                  ? 'bg-emerald-400/5 border-emerald-300/40'
                   : 'bg-[rgba(255,255,255,0.06)] border-[rgba(255,255,255,0.12)] hover:bg-white/10 hover:border-white/30'
               "
             >
@@ -107,6 +107,7 @@
 import { computed } from 'vue'
 import CertificateCanvas from './konva.vue'
 
+
 export default {
   name: 'Step3Preview',
   components: { CertificateCanvas },
@@ -125,7 +126,6 @@ export default {
     ]
 
     // eventForm is the same reactive object all the way up from eventcaldetails.vue,
-    // so make sure variableMap exists before children start reading/writing it.
     if (!props.eventForm.variableMap) props.eventForm.variableMap = {}
 
     const templatePreviewUrl = computed(() => props.eventForm.templateUrl || null)
@@ -159,7 +159,7 @@ export default {
         xRatio: 0.5,
         yRatio: 0.3 + placedCount * 0.15,
         fontSize: 28,
-        fill: '#0c4a43',
+        fill: '#000000',
       }
     }
 

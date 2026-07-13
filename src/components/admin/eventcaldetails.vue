@@ -1,10 +1,11 @@
 <template>
-  <div class="w-full max-w-300 mx-auto flex flex-col gap-y-6">
+  <div class="w-full mt-10 flex flex-col gap-y-6">
     <StepHeader :current-step="currentStep" :total-steps="4" />
 
     <Step1Details
       v-if="currentStep === 1"
       :event-form="eventForm"
+      :existing-events="existingEvents"
       @next="goNext"
     />
     <Step2Template
@@ -22,6 +23,7 @@
     <Step4Response
       v-if="currentStep === 4"
       :event-form="eventForm"
+      :existing-events="existingEvents"
       @submit="saveEvent"
       @back="goBack"
     />
@@ -29,12 +31,13 @@
 </template>
 
 <script>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import StepHeader from './steps/stepheader.vue'
 import Step1Details from './steps/1-details.vue'
 import Step2Template from './steps/2-template.vue'
 import Step3Preview from './steps/3-prev.vue'
 import Step4Response from './steps/4-response.vue'
+import { fetchAllEvents } from '../../service/docustore'
 
 export default {
   name: 'EventCalDetails',
@@ -48,9 +51,10 @@ export default {
   setup() {
     const currentStep = ref(1)
 
-    // single shared reactive object, passed to every step as a plain prop.
     const eventForm = reactive({
       name: '',
+      startDate: '',
+      startTime: '',
       endDate: '',
       endTime: '',
       location: '',
@@ -59,6 +63,16 @@ export default {
       templatePublicId: null,
       variableMap: {},
       questions: [],
+    })
+
+    // fetched once and shared with Step1 (warning) and Step4 (hard block) so both agree on whether the chosen date already has a whole-day event.
+    const existingEvents = ref([])
+    onMounted(async () => {
+      try {
+        existingEvents.value = await fetchAllEvents()
+      } catch (err) {
+        console.error('Failed to load existing events for conflict check:', err)
+      }
     })
 
     const goNext = () => {
@@ -70,10 +84,13 @@ export default {
     }
 
     const saveEvent = () => {
-      // 4-response.vue's handleCreateEvent already persists the event to Firestore and redirects to /events-all - nothing left to do here except reset this wizard's local state, so if the user ever lands back on /eventcaldetails  it starts a fresh event instead of showing the one that was just created.
+      // 4-response.vue's handleCreateEvent already persists the event to Firestore and redirects to /events-all - nothing left to do here except reset this
+      
       currentStep.value = 1
       Object.assign(eventForm, {
         name: '',
+        startDate: '',
+        startTime: '',
         endDate: '',
         endTime: '',
         location: '',
@@ -88,6 +105,7 @@ export default {
     return {
       currentStep,
       eventForm,
+      existingEvents,
       goNext,
       goBack,
       saveEvent,

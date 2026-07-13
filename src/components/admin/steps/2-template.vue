@@ -188,7 +188,7 @@ export default {
       if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
       previewUrl.value = file.type.startsWith('image/') ? URL.createObjectURL(file) : null
 
-    
+      // upload right away so it's ready by the time the user clicks Continue
       runUpload(file)
     }
 

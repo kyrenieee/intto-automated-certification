@@ -6,7 +6,7 @@ import { RouterLink } from "vue-router";
 
 <template>
   <header class="sticky top-0 z-50 w-full ">
-  <nav class="w-full max-w-5xl mx-auto flex justify-between items-center h-20 px-6 text-white">
+  <nav class="w-full mx-auto flex justify-between items-center h-20 px-6 text-white">
     
     <!-- logo holder-->
     <div class="flex items-center">

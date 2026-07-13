@@ -1,11 +1,17 @@
 <script setup>
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { createEventInFirestore } from '../../../service/docustore'
+import { getDurationType, hasWholeDayConflict } from '../../../utils/Eventscheduling'
 
 const props = defineProps({
   eventForm: {
     type: Object,
     required: true,
+  },
+  existingEvents: {
+    type: Array,
+    default: () => [],
   },
 })
 
@@ -14,7 +20,6 @@ const emit = defineEmits(['submit', 'back'])
 const router = useRouter()
 let nextId = 1
 
-// same shared reactive eventForm passed through from eventcaldetails.vue -
 // initialize its questions array in place rather than keeping a disconnected
 if (!props.eventForm.questions || props.eventForm.questions.length === 0) {
   props.eventForm.questions = [
@@ -26,6 +31,12 @@ if (!props.eventForm.questions || props.eventForm.questions.length === 0) {
       options: ['18 - 24', '25 - 34', '35 - 44', '45 - 54', '55 - 64', '65+'],
     },
     { id: nextId++, type: 'rating', text: 'How would you rate this event overall?' },
+    {
+      id: nextId++,
+      type: 'choice',
+      text: 'Which department are you affliated with',
+      options: ['CITCS', 'CBA', 'COE', 'CAS', 'CTE', 'CAFA', 'CONAHS', 'ÇHTM', 'CCJE','COL','COA'],
+    },
   ]
 } else {
   nextId = Math.max(...props.eventForm.questions.map((q) => q.id)) + 1
@@ -41,12 +52,39 @@ const removeQuestion = (index) => {
   props.eventForm.questions.splice(index, 1)
 }
 
+const addOption = (questionIndex) => {
+  const q = props.eventForm.questions[questionIndex]
+  if (!q.options) q.options = []
+  q.options.push(`Option ${q.options.length + 1}`)
+}
+
+const removeOption = (questionIndex, optionIndex) => {
+  const q = props.eventForm.questions[questionIndex]
+  if (q.options.length <= 1) return
+  q.options.splice(optionIndex, 1)
+}
+
+// a whole-day event already booked on this date blocks creating another one.
+const wholeDayConflict = computed(() =>
+  hasWholeDayConflict(props.existingEvents, props.eventForm.endDate)
+)
+
 const handleCreateEvent = async () => {
+  if (wholeDayConflict.value) {
+    alert('This date already has a whole-day event booked. Go back to Step 1 and pick a different date.')
+    return
+  }
+
   try {
     const newEvent = {
       title: props.eventForm?.name || 'Untitled Event',
+      startDate: props.eventForm?.startDate || '',
+      startTime: props.eventForm?.startTime || '',
+      // 'date' stays the key the calendar groups events by (kept for
+      // backwards compatibility with existing records/queries).
       date: props.eventForm?.endDate || '',
-      time: props.eventForm?.endTime || '',
+      endTime: props.eventForm?.endTime || '',
+      durationType: getDurationType(props.eventForm?.endTime),
       location: props.eventForm?.location || '',
       scans: '0',
       certs: '0',
@@ -85,7 +123,8 @@ const handleSubmit = () => {
         </button>
         <button
           @click="handleSubmit"
-          class="flex items-center gap-2 border border-white/30 rounded-full px-6 py-3 text-base font-medium hover:bg-white/10 transition cursor-pointer"
+          :disabled="wholeDayConflict"
+          class="flex items-center gap-2 border border-white/30 rounded-full px-6 py-3 text-base font-medium hover:bg-white/10 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
         >
           Create Event
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -94,6 +133,11 @@ const handleSubmit = () => {
         </button>
       </div>
     </div>
+
+    <p v-if="wholeDayConflict" class="text-sm text-amber-300 bg-amber-400/10 border border-amber-300/30 rounded-2xl px-4 py-3 mb-8">
+      ⚠ {{ eventForm.endDate }} already has a whole-day event booked, so this event can't be created.
+      Go back to Step 1 and choose a different date.
+    </p>
 
     <!-- questions collection -->
     <div class="flex flex-col gap-5 mb-8">
@@ -132,14 +176,34 @@ const handleSubmit = () => {
           </div>
 
           <!-- multi choice -->
-          <div v-else-if="question.type === 'choice'" class="flex flex-wrap gap-2.5">
-            <span
-              v-for="option in question.options"
-              :key="option"
-              class="border border-white/20 bg-white/5 px-4 py-2 rounded-full text-sm font-medium"
+          <div v-else-if="question.type === 'choice'" class="flex flex-wrap gap-2.5 items-center">
+            <div
+              v-for="(option, optIndex) in question.options"
+              :key="optIndex"
+              class="flex items-center gap-1.5 border border-white/20 bg-white/5 rounded-full pl-4 pr-2 py-1.5"
             >
-              {{ option }}
-            </span>
+              <input
+                v-model="question.options[optIndex]"
+                type="text"
+                placeholder="Option"
+                class="bg-transparent text-sm font-medium outline-none w-24 sm:w-28"
+              />
+              <button
+                v-if="question.options.length > 1"
+                type="button"
+                @click="removeOption(index, optIndex)"
+                class="text-white/30 hover:text-red-300 text-xs w-4 h-4 flex items-center justify-center shrink-0"
+              >
+                ✕
+              </button>
+            </div>
+            <button
+              type="button"
+              @click="addOption(index)"
+              class="flex items-center gap-1 border border-dashed border-white/20 hover:border-white/40 rounded-full px-3 py-1.5 text-xs text-white/50 hover:text-white transition cursor-pointer"
+            >
+              + Option
+            </button>
           </div>
 
           <!-- rating -->

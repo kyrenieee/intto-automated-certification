@@ -53,6 +53,30 @@
       <label class="flex flex-col gap-y-2">
         <span
           class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]"
+          >Event Start Date*</span
+        >
+        <input
+          v-model="eventForm.startDate"
+          type="date"
+          class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
+        />
+      </label>
+
+      <label class="flex flex-col gap-y-2">
+        <span
+          class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]"
+          >Event Start Time*</span
+        >
+        <input
+          v-model="eventForm.startTime"
+          type="time"
+          class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
+        />
+      </label>
+
+      <label class="flex flex-col gap-y-2">
+        <span
+          class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]"
           >Event End Date*</span
         >
         <input
@@ -72,6 +96,19 @@
           type="time"
           class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
         />
+
+        <p v-if="scheduleError" class="text-xs text-red-300 mt-1">{{ scheduleError }}</p>
+        <p v-else-if="eventForm.endTime" class="text-xs text-gray-400 mt-1">
+          This will show as a
+          <span :class="durationType === 'whole' ? 'text-emerald-300' : 'text-amber-300'">
+            {{ durationType === 'whole' ? 'Whole Day' : 'Half Day' }}
+          </span>
+          event (ends {{ durationType === 'whole' ? 'after' : 'by' }} {{ cutoffLabel }}).
+        </p>
+        <p v-if="wholeDayConflict" class="text-xs text-amber-300 mt-1">
+          ⚠ This date already has a whole-day event booked - you won't be able to
+          create this event unless you pick a different date.
+        </p>
       </label>
 
       <!-- live search loc -->
@@ -90,7 +127,7 @@
             placeholder="Start typing an address or place name..."
             class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 placeholder:text-white/20 text-white pr-12"
           />
-          <!-- spinner / down arrow indicator -->
+          <!-- Spinner / Down Arrow indicator -->
           <span
             class="absolute right-5 top-3.5 text-xs text-white/30 pointer-events-none"
           >
@@ -124,15 +161,16 @@
 
 <script>
 import { ref, computed } from 'vue'
+import { getDurationType, hasWholeDayConflict, WHOLE_DAY_CUTOFF_LABEL } from '../../../utils/Eventscheduling'
 
-// replace with a real geocoding/places API call (Google Places, Mapbox, etc.)
+// replace with a real geocoding/places API call
 const MOCK_PLACES = [
   'University of the Cordilleras',
-  'University of the Cordilleras, Auditorium',
-  'University of the Cordilleras, Theater',
-  'University of the Cordilleras, Canao Hall',
+  'University of the Cordillera, Auditorium',
+  'University of the Cordilleras,Theater',
+  'University of the Cordilleras, Gym',
   'University of the Cordilleras, InTTO',
-
+  'University of the Cordilleras, Canao Hall',
 ]
 
 export default {
@@ -141,6 +179,10 @@ export default {
     eventForm: {
       type: Object,
       required: true,
+    },
+    existingEvents: {
+      type: Array,
+      default: () => [],
     },
   },
   emits: ['next'],
@@ -152,8 +194,6 @@ export default {
 
     const handleLocationInput = (e) => {
       const value = e.target.value
-      // Mutating the shared eventForm directly - this is the same reactive
-      // object that flows through to Step3Preview/CertificateCanvas.
       props.eventForm.location = value
       showLocationPicker.value = true
 
@@ -186,13 +226,32 @@ export default {
       }, 250)
     }
 
+    const scheduleError = computed(() => {
+      const { startDate, startTime, endDate, endTime } = props.eventForm
+      if (!startDate || !endDate) return ''
+      if (startDate > endDate) return 'Start date must be on or before the end date.'
+      if (startDate === endDate && startTime && endTime && startTime >= endTime) {
+        return 'End time must be after start time.'
+      }
+      return ''
+    })
+
+    const durationType = computed(() => getDurationType(props.eventForm.endTime))
+    const cutoffLabel = WHOLE_DAY_CUTOFF_LABEL
+
+    const wholeDayConflict = computed(() =>
+      hasWholeDayConflict(props.existingEvents, props.eventForm.endDate)
+    )
+
     const isValid = computed(() =>
       Boolean(
         props.eventForm.name &&
+          props.eventForm.startDate &&
+          props.eventForm.startTime &&
           props.eventForm.endDate &&
           props.eventForm.endTime &&
           props.eventForm.location
-      )
+      ) && !scheduleError.value
     )
 
     const handleNextStep = () => {
@@ -208,6 +267,10 @@ export default {
       handleLocationInput,
       selectLocation,
       hideLocationPickerDelayed,
+      scheduleError,
+      durationType,
+      cutoffLabel,
+      wholeDayConflict,
       isValid,
       handleNextStep,
     }

@@ -9,7 +9,7 @@ import { useRouter } from 'vue-router'
 <template>
     <!-- settings container -->
     <main
-      class="max-w-5xl w-full mx-auto p-10 rounded-4xl mt-12 text-white
+      class=" w-full mx-auto p-10 rounded-4xl mt-10 text-white
              bg-[rgba(255,255,255,0.06)] backdrop-blur-md 
              border border-[rgba(255,255,255,0.12)] 
              shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)]"
@@ -62,7 +62,7 @@ import { useRouter } from 'vue-router'
           </div>
         </div>
       </div>
-      <RouterLink to="/login" class="mt-10 inline-block px-6 py-3  text-white rounded-4xl bg-[rgba(255,255,255,0.06)] backdrop-blur-md 
+      <RouterLink to="/" class="mt-10 inline-block px-6 py-3  text-white rounded-4xl bg-[rgba(255,255,255,0.06)] backdrop-blur-md 
              border border-[rgba(255,255,255,0.12)] 
              shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] transition">Logout</RouterLink>
     </main>

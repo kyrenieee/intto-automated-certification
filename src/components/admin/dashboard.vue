@@ -16,7 +16,7 @@ import { RouterLink } from "vue-router";
 
 <template>
   <section
-    class="w-full max-w-5xl mx-auto px-4 sm:px-6 font-poppins text-white flex flex-col gap-y-6"
+    class="w-full max-w-400 mx-auto px-4 sm:px-6 font-poppins text-white flex flex-col gap-y-6"
   >
     <div class="flex justify-end items-center w-full">
       <!-- sched new event button wrapper -->
@@ -44,18 +44,18 @@ import { RouterLink } from "vue-router";
     </div>
 
     <!-- metric cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 w-full">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 w-full">
       <!-- card 1: total events -->
       <div
-        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-55"
+        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-75"
       >
         <div>
           <h3
-            class="text-xs font-normal tracking-wider text-[rgba(255,255,255,0.45)] uppercase"
+            class="text-md font-normal tracking-wider text-[rgba(255,255,255,0.45)] uppercase"
           >
             Total Events
           </h3>
-          <p class=" text-6xl font-medium text-white mt-6 select-none">42</p>
+          <p class=" text-7xl font-medium text-white mt-6 align-center select-none">42</p>
         </div>
         <!-- status node -->
         <div
@@ -67,15 +67,15 @@ import { RouterLink } from "vue-router";
 
       <!-- card 2: upcoming events-->
       <div
-        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-44"
+        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-75"
       >
         <div>
           <h3
-            class="text-xs font-normal tracking-wider text-[rgba(255,255,255,0.45)] uppercase"
+            class="text-md font-normal tracking-wider text-[rgba(255,255,255,0.45)] uppercase"
           >
             Upcoming Events
           </h3>
-          <p class="text-6xl font-medium text-white mt-6 select-none">12</p>
+          <p class="text-7xl font-medium text-white mt-6 select-none">12</p>
         </div>
         <div
           class="self-start px-3 py-1 bg-white/5 border border-white/10 text-white/60 text-xs font-normal rounded-full"
@@ -90,11 +90,11 @@ import { RouterLink } from "vue-router";
       >
         <div>
           <h3
-            class="text-xs font-normal tracking-wider text-[rgba(255,255,255,0.45)] uppercase"
+            class="text-md font-normal tracking-wider text-[rgba(255,255,255,0.45)] uppercase"
           >
             Issued Certs
           </h3>
-          <p class="text-6xl font-medium text-white mt-6 select-none">1,284</p>
+          <p class="text-7xl font-medium text-white mt-6 select-none">1,284</p>
         </div>
         <div
           class="self-start px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-normal rounded-full"
@@ -105,15 +105,15 @@ import { RouterLink } from "vue-router";
 
       <!-- card 4: response rate -->
       <div
-        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-55"
+        class="bg-[rgba(255,255,255,0.05)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-4xl p-5 flex flex-col justify-between min-h-75"
       >
         <div>
           <h3
-            class="text-xs font-normal tracking-wider text-[rgba(255,255,255,0.45)] uppercase"
+            class="text-md font-normal tracking-wider text-[rgba(255,255,255,0.45)] uppercase"
           >
             Response Rate
           </h3>
-          <p class="text-6xl font-medium text-white mt-6 select-none">84.3%</p>
+          <p class="text-7xl font-medium text-white mt-6 select-none">84.3%</p>
         </div>
         <div
           class="self-start px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-normal rounded-full"

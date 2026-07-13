@@ -2,13 +2,14 @@
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
 const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+import.meta.env.VITE_CLOUDINARY_API_KEY
 
 /**
  * upload a file to cloudinary
  * @param {File} file
  * @param {Object} [options]
  * @param {(percent: number) => void} [options.onProgress] - 0-100
- * @param {string} [options.folder] - optional Cloudinary folder, like 'certificate-templates'
+ * @param {string} [options.folder]
  * @returns {Promise<{ secureUrl: string, publicId: string, width: number, height: number, resourceType: string, raw: any }>}
  */
 export function uploadToCloudinary(file, { onProgress, folder } = {}) {

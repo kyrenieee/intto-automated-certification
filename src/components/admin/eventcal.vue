@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { fetchAllEvents } from '../../service/docustore.js'
+import { fetchAllEvents } from '../../service/docustore'
+import { getDurationType } from '../../utils/Eventscheduling.js'
 
-// --- dtate management ---
-
+// --- state management ---
 const today = new Date()
 const selectedYear = ref(today.getFullYear())
 const selectedMonthIndex = ref(today.getMonth())
@@ -20,7 +20,7 @@ const monthNames = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ]
 
-// --- fetched from Firestore event data---
+// --- fetched data event from firestore---
 const eventsList = ref([])
 const isLoadingEvents = ref(true)
 const eventsError = ref('')
@@ -36,8 +36,7 @@ onMounted(async () => {
   }
 })
 
-// events grouped by their date string ('YYYY-MM-DD', same format created in
-// 4-response.vue's handleCreateEvent), so a day can show more than one event?? but should not? 
+// events grouped by their date string 
 const eventsByDate = computed(() => {
   const map = {}
   for (const event of eventsList.value) {
@@ -50,11 +49,19 @@ const eventsByDate = computed(() => {
 
 const todayString = computed(() => new Date().toISOString().split('T')[0])
 
-// there's no "half day" concept yet will add start date and time in create event?
+
+const statusForEvent = (event) => {
+  if (event.date < todayString.value) return 'finished'
+  return event.durationType || getDurationType(event.endTime || event.time)
+}
+
+
 const statusForDate = (dateString) => {
-  if (dateString === todayString.value) return 'today'
+  const events = eventsByDate.value[dateString]
+  if (!events || events.length === 0) return null
   if (dateString < todayString.value) return 'finished'
-  return 'upcoming'
+  const hasWhole = events.some((e) => (e.durationType || getDurationType(e.endTime || e.time)) === 'whole')
+  return hasWhole ? 'whole' : 'half'
 }
 
 // --- computed calendar grid math ---
@@ -131,16 +138,44 @@ const selectMonth = (index) => {
   const maxDays = new Date(selectedYear.value, index + 1, 0).getDate()
   if (selectedDay.value > maxDays) selectedDay.value = maxDays
 }
+
+// arrow-button month navigation, handling year rollover at Jan/Dec.
+const shiftMonth = (delta) => {
+  let newMonth = selectedMonthIndex.value + delta
+  let newYear = selectedYear.value
+
+  if (newMonth < 0) {
+    newMonth = 11
+    newYear -= 1
+  } else if (newMonth > 11) {
+    newMonth = 0
+    newYear += 1
+  }
+
+  selectedMonthIndex.value = newMonth
+  selectedYear.value = newYear
+
+  const maxDays = new Date(newYear, newMonth + 1, 0).getDate()
+  if (selectedDay.value > maxDays) selectedDay.value = maxDays
+}
 </script>
 
 <template>
-  <div class="w-full max-w-5xl p-5 bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] mx-auto grid grid-cols-1 rounded-4xl lg:grid-cols-3 gap-6 font-poppins text-white px-4 ">
+  <div class="w-full max-w-350 p-5 mt-10 bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] grid grid-cols-1 rounded-4xl lg:grid-cols-3 gap-6 font-poppins text-white px-4 ">
 
     <!-- left panel: calendar dates -->
     <section class="lg:col-span-2 bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-3xl p-6 flex flex-col justify-between">
       <div>
         <!-- date selector toggles -->
-        <div class="flex items-center space-x-4 mb-6 relative">
+        <div class="flex items-center gap-2 mb-6 relative flex-wrap">
+          <button
+            @click="shiftMonth(-1)"
+            aria-label="Previous month"
+            class="w-8 h-8 flex items-center justify-center rounded-full border border-white/15 text-white/60 hover:text-white hover:bg-white/10 transition cursor-pointer"
+          >
+            ‹
+          </button>
+
           <!-- year dropdown -->
           <div class="relative">
             <button
@@ -173,6 +208,14 @@ const selectMonth = (index) => {
             </div>
           </div>
 
+          <button
+            @click="shiftMonth(1)"
+            aria-label="Next month"
+            class="w-8 h-8 flex items-center justify-center rounded-full border border-white/15 text-white/60 hover:text-white hover:bg-white/10 transition cursor-pointer"
+          >
+            ›
+          </button>
+
           <span v-if="isLoadingEvents" class="text-[11px] text-[rgba(255,255,255,0.35)]">Loading events…</span>
           <span v-else-if="eventsError" class="text-[11px] text-red-300">{{ eventsError }}</span>
         </div>
@@ -196,13 +239,13 @@ const selectMonth = (index) => {
           >
             <span class="text-sm font-medium z-10">{{ String(day.dayNumber).padStart(2, '0') }}</span>
 
-            <!-- status dots: color reflects whether the booked event(s) on that day are finished, today, or upcoming will change back to half day full day when create event is fixewd-->
+            <!-- status dots: emerald = whole day, amber = half day, grey = finished -->
             <span
               v-if="day.isCurrentMonth && eventsByDate[day.dateString]"
               class="absolute bottom-1.5 w-1.5 h-1.5 rounded-full"
               :class="{
-                'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]': statusForDate(day.dateString) === 'upcoming',
-                'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]': statusForDate(day.dateString) === 'today',
+                'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]': statusForDate(day.dateString) === 'whole',
+                'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]': statusForDate(day.dateString) === 'half',
                 'bg-white/30': statusForDate(day.dateString) === 'finished'
               }"
             ></span>
@@ -239,17 +282,17 @@ const selectMonth = (index) => {
             >
               <p class="text-white font-medium text-sm">{{ event.title }}</p>
               <p class="text-[rgba(255,255,255,0.5)] text-[11px] mt-1">
-                {{ event.time || 'Time TBD' }} • {{ event.location || 'Location TBD' }}
+                {{ event.startTime || 'Time TBD' }}{{ event.endTime ? ` – ${event.endTime}` : '' }} • {{ event.location || 'Location TBD' }}
               </p>
               <span
                 class="inline-block mt-2 text-[10px] font-medium px-2 py-0.5 rounded-full capitalize"
                 :class="{
-                  'bg-emerald-400/20 text-emerald-300': statusForDate(event.date) === 'upcoming',
-                  'bg-amber-400/20 text-amber-300': statusForDate(event.date) === 'today',
-                  'bg-white/10 text-white/50': statusForDate(event.date) === 'finished',
+                  'bg-emerald-400/20 text-emerald-300': statusForEvent(event) === 'whole',
+                  'bg-amber-400/20 text-amber-300': statusForEvent(event) === 'half',
+                  'bg-white/10 text-white/50': statusForEvent(event) === 'finished',
                 }"
               >
-                {{ statusForDate(event.date) }}
+                {{ statusForEvent(event) === 'finished' ? 'Finished' : statusForEvent(event) === 'whole' ? 'Whole Day' : 'Half Day' }}
               </span>
             </div>
           </div>
@@ -264,11 +307,11 @@ const selectMonth = (index) => {
         <div class="flex flex-wrap justify-center items-center gap-x-3 gap-y-1 text-[10px] text-[rgba(255,255,255,0.4)]">
           <div class="flex items-center space-x-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.4)]"></span>
-            <span>Upcoming</span>
+            <span>Whole Day</span>
           </div>
           <div class="flex items-center space-x-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.4)]"></span>
-            <span>Today</span>
+            <span>Half Day</span>
           </div>
           <div class="flex items-center space-x-1.5">
             <span class="w-1.5 h-1.5 rounded-full bg-white/30"></span>
