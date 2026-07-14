@@ -55,7 +55,11 @@ import { RouterLink } from "vue-router";
           >
             Total Events
           </h3>
-          <p class=" text-7xl font-medium text-white mt-6 align-center select-none">42</p>
+          <p
+            class="text-7xl font-medium text-white mt-6 align-center select-none"
+          >
+            42
+          </p>
         </div>
         <!-- status node -->
         <div

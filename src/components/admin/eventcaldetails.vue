@@ -31,16 +31,16 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted } from 'vue'
-import StepHeader from './steps/stepheader.vue'
-import Step1Details from './steps/1-details.vue'
-import Step2Template from './steps/2-template.vue'
-import Step3Preview from './steps/3-prev.vue'
-import Step4Response from './steps/4-response.vue'
-import { fetchAllEvents } from '../../service/docustore'
+import { ref, reactive, onMounted } from "vue";
+import StepHeader from "./steps/stepheader.vue";
+import Step1Details from "./steps/1-details.vue";
+import Step2Template from "./steps/2-template.vue";
+import Step3Preview from "./steps/3-prev.vue";
+import Step4Response from "./steps/4-response.vue";
+import { fetchAllEvents } from "../../service/docustore";
 
 export default {
-  name: 'EventCalDetails',
+  name: "EventCalDetails",
   components: {
     StepHeader,
     Step1Details,
@@ -49,58 +49,61 @@ export default {
     Step4Response,
   },
   setup() {
-    const currentStep = ref(1)
+    const currentStep = ref(1);
 
     const eventForm = reactive({
-      name: '',
-      startDate: '',
-      startTime: '',
-      endDate: '',
-      endTime: '',
-      location: '',
+      name: "",
+      startDate: "",
+      startTime: "",
+      endDate: "",
+      endTime: "",
+      location: "",
       templateFile: null,
       templateUrl: null,
       templatePublicId: null,
       variableMap: {},
       questions: [],
-    })
+    });
 
     // fetched once and shared with Step1 (warning) and Step4 (hard block) so both agree on whether the chosen date already has a whole-day event.
-    const existingEvents = ref([])
+    const existingEvents = ref([]);
     onMounted(async () => {
       try {
-        existingEvents.value = await fetchAllEvents()
+        existingEvents.value = await fetchAllEvents();
       } catch (err) {
-        console.error('Failed to load existing events for conflict check:', err)
+        console.error(
+          "Failed to load existing events for conflict check:",
+          err,
+        );
       }
-    })
+    });
 
     const goNext = () => {
-      if (currentStep.value < 4) currentStep.value++
-    }
+      if (currentStep.value < 4) currentStep.value++;
+    };
 
     const goBack = () => {
-      if (currentStep.value > 1) currentStep.value--
-    }
+      if (currentStep.value > 1) currentStep.value--;
+    };
 
     const saveEvent = () => {
       // 4-response.vue's handleCreateEvent already persists the event to Firestore and redirects to /events-all - nothing left to do here except reset this
-      
-      currentStep.value = 1
+
+      currentStep.value = 1;
       Object.assign(eventForm, {
-        name: '',
-        startDate: '',
-        startTime: '',
-        endDate: '',
-        endTime: '',
-        location: '',
+        name: "",
+        startDate: "",
+        startTime: "",
+        endDate: "",
+        endTime: "",
+        location: "",
         templateFile: null,
         templateUrl: null,
         templatePublicId: null,
         variableMap: {},
         questions: [],
-      })
-    }
+      });
+    };
 
     return {
       currentStep,
@@ -109,10 +112,9 @@ export default {
       goNext,
       goBack,
       saveEvent,
-    }
+    };
   },
-}
+};
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

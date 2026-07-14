@@ -97,17 +97,24 @@
           class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
         />
 
-        <p v-if="scheduleError" class="text-xs text-red-300 mt-1">{{ scheduleError }}</p>
+        <p v-if="scheduleError" class="text-xs text-red-300 mt-1">
+          {{ scheduleError }}
+        </p>
         <p v-else-if="eventForm.endTime" class="text-xs text-gray-400 mt-1">
           This will show as a
-          <span :class="durationType === 'whole' ? 'text-emerald-300' : 'text-amber-300'">
-            {{ durationType === 'whole' ? 'Whole Day' : 'Half Day' }}
+          <span
+            :class="
+              durationType === 'whole' ? 'text-emerald-300' : 'text-amber-300'
+            "
+          >
+            {{ durationType === "whole" ? "Whole Day" : "Half Day" }}
           </span>
-          event (ends {{ durationType === 'whole' ? 'after' : 'by' }} {{ cutoffLabel }}).
+          event (ends {{ durationType === "whole" ? "after" : "by" }}
+          {{ cutoffLabel }}).
         </p>
         <p v-if="wholeDayConflict" class="text-xs text-amber-300 mt-1">
-          ⚠ This date already has a whole-day event booked - you won't be able to
-          create this event unless you pick a different date.
+          ⚠ This date already has a whole-day event booked - you won't be able
+          to create this event unless you pick a different date.
         </p>
       </label>
 
@@ -160,21 +167,25 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
-import { getDurationType, hasWholeDayConflict, WHOLE_DAY_CUTOFF_LABEL } from '../../../utils/Eventscheduling'
+import { ref, computed } from "vue";
+import {
+  getDurationType,
+  hasWholeDayConflict,
+  WHOLE_DAY_CUTOFF_LABEL,
+} from "../../../utils/Eventscheduling";
 
 // replace with a real geocoding/places API call
 const MOCK_PLACES = [
-  'University of the Cordilleras',
-  'University of the Cordillera, Auditorium',
-  'University of the Cordilleras,Theater',
-  'University of the Cordilleras, Gym',
-  'University of the Cordilleras, InTTO',
-  'University of the Cordilleras, Canao Hall',
-]
+  "University of the Cordilleras",
+  "University of the Cordillera, Auditorium",
+  "University of the Cordilleras,Theater",
+  "University of the Cordilleras, Gym",
+  "University of the Cordilleras, InTTO",
+  "University of the Cordilleras, Canao Hall",
+];
 
 export default {
-  name: 'Step1Details',
+  name: "Step1Details",
   props: {
     eventForm: {
       type: Object,
@@ -185,79 +196,88 @@ export default {
       default: () => [],
     },
   },
-  emits: ['next'],
+  emits: ["next"],
   setup(props, { emit }) {
-    const isSearching = ref(false)
-    const showLocationPicker = ref(false)
-    const locationResults = ref([])
-    let searchTimeout = null
+    const isSearching = ref(false);
+    const showLocationPicker = ref(false);
+    const locationResults = ref([]);
+    let searchTimeout = null;
 
     const handleLocationInput = (e) => {
-      const value = e.target.value
-      props.eventForm.location = value
-      showLocationPicker.value = true
+      const value = e.target.value;
+      props.eventForm.location = value;
+      showLocationPicker.value = true;
 
-      clearTimeout(searchTimeout)
+      clearTimeout(searchTimeout);
       if (!value.trim()) {
-        locationResults.value = []
-        isSearching.value = false
-        return
+        locationResults.value = [];
+        isSearching.value = false;
+        return;
       }
 
-      isSearching.value = true
+      isSearching.value = true;
       searchTimeout = setTimeout(() => {
         locationResults.value = MOCK_PLACES.filter((place) =>
-          place.toLowerCase().includes(value.toLowerCase())
-        )
-        isSearching.value = false
-      }, 300)
-    }
+          place.toLowerCase().includes(value.toLowerCase()),
+        );
+        isSearching.value = false;
+      }, 300);
+    };
 
     const selectLocation = (place) => {
-      props.eventForm.location = place
-      locationResults.value = []
-      showLocationPicker.value = false
-    }
+      props.eventForm.location = place;
+      locationResults.value = [];
+      showLocationPicker.value = false;
+    };
 
     const hideLocationPickerDelayed = () => {
       // delay so a mousedown on a result item fires before the list unmounts
       setTimeout(() => {
-        showLocationPicker.value = false
-      }, 250)
-    }
+        showLocationPicker.value = false;
+      }, 250);
+    };
 
     const scheduleError = computed(() => {
-      const { startDate, startTime, endDate, endTime } = props.eventForm
-      if (!startDate || !endDate) return ''
-      if (startDate > endDate) return 'Start date must be on or before the end date.'
-      if (startDate === endDate && startTime && endTime && startTime >= endTime) {
-        return 'End time must be after start time.'
+      const { startDate, startTime, endDate, endTime } = props.eventForm;
+      if (!startDate || !endDate) return "";
+      if (startDate > endDate)
+        return "Start date must be on or before the end date.";
+      if (
+        startDate === endDate &&
+        startTime &&
+        endTime &&
+        startTime >= endTime
+      ) {
+        return "End time must be after start time.";
       }
-      return ''
-    })
+      return "";
+    });
 
-    const durationType = computed(() => getDurationType(props.eventForm.endTime))
-    const cutoffLabel = WHOLE_DAY_CUTOFF_LABEL
+    const durationType = computed(() =>
+      getDurationType(props.eventForm.endTime),
+    );
+    const cutoffLabel = WHOLE_DAY_CUTOFF_LABEL;
 
     const wholeDayConflict = computed(() =>
-      hasWholeDayConflict(props.existingEvents, props.eventForm.endDate)
-    )
+      hasWholeDayConflict(props.existingEvents, props.eventForm.endDate),
+    );
 
-    const isValid = computed(() =>
-      Boolean(
-        props.eventForm.name &&
+    const isValid = computed(
+      () =>
+        Boolean(
+          props.eventForm.name &&
           props.eventForm.startDate &&
           props.eventForm.startTime &&
           props.eventForm.endDate &&
           props.eventForm.endTime &&
-          props.eventForm.location
-      ) && !scheduleError.value
-    )
+          props.eventForm.location,
+        ) && !scheduleError.value,
+    );
 
     const handleNextStep = () => {
-      if (!isValid.value) return
-      emit('next')
-    }
+      if (!isValid.value) return;
+      emit("next");
+    };
 
     return {
       eventForm: props.eventForm,
@@ -273,10 +293,9 @@ export default {
       wholeDayConflict,
       isValid,
       handleNextStep,
-    }
+    };
   },
-}
+};
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

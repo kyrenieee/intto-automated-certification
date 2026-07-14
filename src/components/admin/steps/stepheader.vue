@@ -22,7 +22,9 @@
 
       <!-- text label -->
       <div class="flex flex-col text-left">
-        <span class="text-[10px] uppercase tracking-widest text-white/50 leading-none">
+        <span
+          class="text-[10px] uppercase tracking-widest text-white/50 leading-none"
+        >
           Step {{ index + 1 }}
         </span>
         <span class="text-xs font-semibold text-white mt-1">
@@ -35,7 +37,7 @@
 
 <script>
 export default {
-  name: 'StepHeader',
+  name: "StepHeader",
   props: {
     currentStep: {
       type: Number,
@@ -44,12 +46,12 @@ export default {
     steps: {
       type: Array,
       default: () => [
-        'Add Event Details',
-        'Add Certificate Template',
-        'Preview',
-        'Response Builder',
+        "Add Event Details",
+        "Add Certificate Template",
+        "Preview",
+        "Response Builder",
       ],
     },
   },
-}
+};
 </script>
