@@ -27,7 +27,7 @@
               class="rounded-4xl border transition-all"
               :class="
                 isPlaced(variable.key)
-                  ? 'bg-emerald-400/5 border-emerald-300/40'
+                  ? 'bg-gray-400/5 border-gray-300/40'
                   : 'bg-[rgba(255,255,255,0.06)] border-[rgba(255,255,255,0.12)] hover:bg-white/10 hover:border-white/30'
               "
             >
@@ -58,7 +58,7 @@
                   class="text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap"
                   :class="
                     isPlaced(variable.key)
-                      ? 'bg-emerald-400/20 text-emerald-300'
+                      ? 'bg-[#1C2D27] text-gray-300'
                       : 'bg-white/10 text-white/60'
                   "
                 >

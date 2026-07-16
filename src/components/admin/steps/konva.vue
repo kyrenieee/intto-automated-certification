@@ -81,7 +81,7 @@ const createTextNode = (key) => {
       text: props.fieldValues[key] ?? key,
       fontFamily: "Poppins, sans-serif",
       fontSize: entry.fontSize || 28,
-      fill: entry.fill || "#0c4a43",
+      fill: entry.fill || "#000000",
       draggable: true,
     }),
   );

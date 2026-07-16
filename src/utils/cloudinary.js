@@ -1,8 +1,6 @@
-
-
-const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
-const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
-import.meta.env.VITE_CLOUDINARY_API_KEY
+const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+import.meta.env.VITE_CLOUDINARY_API_KEY;
 
 /**
  * upload a file to cloudinary
@@ -16,34 +14,37 @@ export function uploadToCloudinary(file, { onProgress, folder } = {}) {
   if (!CLOUD_NAME || !UPLOAD_PRESET) {
     return Promise.reject(
       new Error(
-        'Missing Cloudinary config. Set VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET in your .env file.'
-      )
-    )
+        "Missing Cloudinary config. Set VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET in your .env file.",
+      ),
+    );
   }
 
   return new Promise((resolve, reject) => {
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('upload_preset', UPLOAD_PRESET)
-    if (folder) formData.append('folder', folder)
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
+    if (folder) formData.append("folder", folder);
 
-    const xhr = new XMLHttpRequest()
+    const xhr = new XMLHttpRequest();
     // 'auto' lets Cloudinary detect image vs raw vs video - handles PNG/JPG/PDF fine
-    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`)
+    xhr.open(
+      "POST",
+      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`,
+    );
 
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable && onProgress) {
-        onProgress(Math.round((event.loaded / event.total) * 100))
+        onProgress(Math.round((event.loaded / event.total) * 100));
       }
-    }
+    };
 
     xhr.onload = () => {
-      let data
+      let data;
       try {
-        data = JSON.parse(xhr.responseText)
+        data = JSON.parse(xhr.responseText);
       } catch (err) {
-        reject(new Error('Unexpected response from Cloudinary.'))
-        return
+        reject(new Error("Unexpected response from Cloudinary."));
+        return;
       }
 
       if (xhr.status >= 200 && xhr.status < 300) {
@@ -54,14 +55,16 @@ export function uploadToCloudinary(file, { onProgress, folder } = {}) {
           height: data.height,
           resourceType: data.resource_type,
           raw: data,
-        })
+        });
       } else {
-        reject(new Error(data?.error?.message || `Upload failed (${xhr.status})`))
+        reject(
+          new Error(data?.error?.message || `Upload failed (${xhr.status})`),
+        );
       }
-    }
+    };
 
-    xhr.onerror = () => reject(new Error('Network error during upload.'))
+    xhr.onerror = () => reject(new Error("Network error during upload."));
 
-    xhr.send(formData)
-  })
+    xhr.send(formData);
+  });
 }
