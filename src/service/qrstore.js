@@ -1,33 +1,32 @@
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
 
-export const useQrStore = defineStore('qr', () => {
-  const currentToken = ref('')
-  let intervalId = null
+export const useQrStore = defineStore("qr", () => {
+  const currentToken = ref("");
+  const activeEventId = ref("");
+  let intervalId = null;
 
-  // dummy url
   const rollingUrl = computed(() => {
-    return `dummyurl.com=${currentToken.value}`
-  })
+    return `${window.location.origin}/claim/${activeEventId.value}?token=${currentToken.value}`;
+  });
 
-  // Function to generate a random 8-character string
   const generateToken = () => {
-    currentToken.value = Math.random().toString(36).substring(2, 10).toUpperCase()
-  }
+    currentToken.value = Math.random().toString(36).substring(2, 10).toUpperCase();
+  };
 
-  // rolling timer
-  const startRollingQr = () => {
-    generateToken() // Generate first token immediately
-    // Update the token every 30 seconds
+  // pass event id
+  const startRollingQr = (eventId) => {
+    activeEventId.value = eventId;
+    generateToken(); 
     intervalId = setInterval(() => {
-      generateToken()
-    }, 30000) 
-  }
+      generateToken();
+    }, 15000); // 15 seconds
+  };
 
-  // Clean up the timer when we leave the page
   const stopRollingQr = () => {
-    if (intervalId) clearInterval(intervalId)
-  }
+    if (intervalId) clearInterval(intervalId);
+    activeEventId.value = "";
+  };
 
-  return { rollingUrl, startRollingQr, stopRollingQr }
-})
+  return { rollingUrl, startRollingQr, stopRollingQr };
+});

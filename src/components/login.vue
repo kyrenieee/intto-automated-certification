@@ -1,24 +1,23 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useAuthStore} from "../service/docuauth";
+import { useAuthStore } from "../service/docuauth";
 
 const router = useRouter();
 const authStore = useAuthStore();
-const email = ref('');
-const password = ref('');
+const email = ref("");
+const password = ref("");
 
 // will trigger when form is submitted
 const handleLogin = async () => {
-// pass input values to pinia
+  // pass input values to pinia
   await authStore.loginUser(email.value, password.value);
 
-// no error -> dashboard
+  // no error -> dashboard
   if (!authStore.errorMsg) {
-    router.push('/dashboard');
+    router.push("/dashboard");
   }
 };
-
 </script>
 
 <!-- zai -->
@@ -51,7 +50,10 @@ const handleLogin = async () => {
         </div>
 
         <!-- form -->
-        <form class="w-[min(100%,38rem)] grid gap-5 sm:gap-7" @submit.prevent="handleLogin">
+        <form
+          class="w-[min(100%,38rem)] grid gap-5 sm:gap-7"
+          @submit.prevent="handleLogin"
+        >
           <!-- user field-->
           <label class="grid gap-[0.55rem]">
             <span
@@ -88,7 +90,10 @@ const handleLogin = async () => {
 
           <!-- if not authenticated user, this will pop up -->
 
-          <div v-if="authStore.errorMsg" class="text-center text-[#ff6b6b] text-sm font-medium mt-1.5">
+          <div
+            v-if="authStore.errorMsg"
+            class="text-center text-[#ff6b6b] text-sm font-medium mt-1.5"
+          >
             {{ authStore.errorMsg }}
           </div>
           <!-- submit button -->
