@@ -1,35 +1,44 @@
-import { db } from './firebase-config'
-import { collection, addDoc, getDocs, orderBy, query } from 'firebase/firestore'
+import { db } from "./firebase-config";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  orderBy,
+  query,
+} from "firebase/firestore";
 
 //create new event func
 export const createEventInFirestore = async (eventData) => {
   try {
-    const docRef = await addDoc(collection(db, 'events'), {
+    const docRef = await addDoc(collection(db, "events"), {
       ...eventData,
-      createdAt: new Date().toISOString()
-    })
-    return docRef.id
+      createdAt: new Date().toISOString(),
+    });
+    return docRef.id;
   } catch (error) {
-    console.error("Error adding event: ", error)
-    throw error
+    console.error("Error adding event: ", error);
+    throw error;
   }
-}
+};
 
 //fetch events func
 export const fetchAllEvents = async () => {
   try {
     // Order by creation date
-    const eventsQuery = query(collection(db, 'events'), orderBy('createdAt', 'desc'))
-    const querySnapshot = await getDocs(eventsQuery)
-    
-    const eventsList = querySnapshot.docs.map(doc => ({
+    const eventsQuery = query(
+      collection(db, "events"),
+      orderBy("createdAt", "desc"),
+    );
+    const querySnapshot = await getDocs(eventsQuery);
+
+    const eventsList = querySnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
-    }))
-    
-    return eventsList
+      ...doc.data(),
+    }));
+
+    return eventsList;
   } catch (error) {
-    console.error("Error fetching events: ", error)
-    throw error
+    console.error("Error fetching events: ", error);
+    throw error;
   }
-}
+};
