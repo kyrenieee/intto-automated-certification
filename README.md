@@ -1,38 +1,75 @@
-# Automated Certification
+# Intto Automated Certification
 
-This template should help get you started developing with Vue 3 in Vite.
+Web app for running events and handing out certificates without doing it all by hand. An admin sets up an event, builds a certificate template, and the app takes care of generating QR codes, collecting attendee responses, and issuing certificates once someone shows up and checks in.
 
-## Recommended IDE Setup
+Built with Vue 3, Firebase, and Konva for the certificate canvas.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## What it does
 
-## Recommended Browser Setup
+- Admin logs in and creates an event through a step by step wizard (event details, certificate template, canvas preview, survey/response setup)
+- Certificate templates are designed on a canvas using Konva, so text and placeholders can be dragged and placed visually
+- Each event gets a QR code for check in
+- Participants and their survey responses are tracked per event
+- Dashboard shows active events, all events, and participant lists
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+## Tech stack
 
-## Customize configuration
+- Vue 3 + Vite
+- Vue Router
+- Pinia for state
+- Firebase (auth, Firestore, hosting)
+- Konva / vue-konva for the certificate canvas editor
+- Tailwind CSS
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## Getting started
 
-## Project Setup
+You'll need Node `^20.19.0` or `>=22.12.0`.
 
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+Copy your Firebase project config into `src/service/firebase-config.js` (or set it up through environment variables, depending on how your instance is configured). Without this the app won't be able to talk to Firestore or auth.
+
+### Run it locally
 
 ```sh
 npm run dev
 ```
 
-### Compile and Minify for Production
+### Build for production
 
 ```sh
 npm run build
 ```
+
+### Preview a production build
+
+```sh
+npm run preview
+```
+
+## Project layout
+
+```
+src/
+  components/
+    admin/          admin dashboard, event calendar, event creation steps
+      steps/        the 4 step event/certificate builder (details, template, canvas preview, responses)
+    user/           attendee facing views
+  service/          firebase config, auth, firestore helpers
+  stores/           pinia stores
+  router.js         app routes
+```
+
+## Firebase
+
+`firestore.rules` and `firestore.indexes.json` are in the repo root, `firebase.json` handles hosting/deploy config. Deploy rules and indexes with the Firebase CLI when they change:
+
+```sh
+firebase deploy --only firestore:rules,firestore:indexes
+```
+
+## Known issues
+
+Step 4 of the event builder (the survey/response step) currently throws on load, missing imports need to get sorted out. See open issues for details.
