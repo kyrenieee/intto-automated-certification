@@ -2,7 +2,6 @@
 import { ref, onMounted, onBeforeUnmount, watch, markRaw, nextTick } from "vue";
 import Konva from "konva";
 
-// props: templateUrl (string), variableMap (object), fieldValues (object)
 const props = defineProps({
   templateUrl: { type: String, default: null },
   variableMap: { type: Object, required: true },
@@ -18,7 +17,6 @@ let stage = null,
   resizeObserver = null;
 const textNodes = new Map();
 
-// standard function declaration ensures hoisting
 function syncNodesToVariableMap() {
   if (!layer) return;
   const currentKeys = Object.keys(props.variableMap);
@@ -33,7 +31,6 @@ function syncNodesToVariableMap() {
   layer.batchDraw();
 }
 
-// fit an image to a box while preserving aspect ratio, cropping as needed
 const fitCover = (imgW, imgH, boxW, boxH) => {
   const imgRatio = imgW / imgH,
     boxRatio = boxW / boxH;
@@ -72,6 +69,8 @@ const positionNode = (key, node) => {
   node.x(entry.xRatio * stageW);
   node.y(entry.yRatio * stageH);
   node.fontSize(entry.fontSize || 28);
+  node.fill(entry.fill || '#000000');
+  node.fontFamily(entry.fontFamily ? `${entry.fontFamily}, sans-serif` : 'Poppins, sans-serif');
 };
 
 const createTextNode = (key) => {
@@ -79,9 +78,9 @@ const createTextNode = (key) => {
   const node = markRaw(
     new Konva.Text({
       text: props.fieldValues[key] ?? key,
-      fontFamily: "Poppins, sans-serif",
+      fontFamily: entry.fontFamily ? `${entry.fontFamily}, sans-serif` : "Poppins, sans-serif",
       fontSize: entry.fontSize || 28,
-      fontStyle:"bold",
+      fontStyle: "bold",
       fill: entry.fill || "#000000",
       draggable: true,
     }),
@@ -116,7 +115,6 @@ const destroyTextNode = (key) => {
   }
 };
 
-//load the template uploaded and add it to the layer
 const loadTemplateImage = (url) => {
   if (!url || !layer) return;
   const img = new window.Image();
@@ -130,9 +128,12 @@ const loadTemplateImage = (url) => {
     positionBackground();
     layer.batchDraw();
   };
+  img.onerror = () => {
+    console.error('[CertificateCanvas] Failed to load template image (404 / Network error):', url);
+  };
   img.src = url;
 };
-// initialize the Konva stage and layer, and add the background rectangle and template image
+
 const initStage = () => {
   const { width, height } = getStageSize();
   stage = markRaw(
@@ -152,7 +153,6 @@ const initStage = () => {
   syncNodesToVariableMap();
 };
 
-// watch for changes in templateUrl, variableMap, and fieldValues to update the stage accordingly
 onMounted(async () => {
   await nextTick();
   if (!containerEl.value) return;
@@ -160,6 +160,7 @@ onMounted(async () => {
 
   resizeObserver = new ResizeObserver(() => {
     const size = getStageSize();
+    if (!stage) return;
     stage.width(size.width);
     stage.height(size.height);
     positionBackground();
@@ -169,20 +170,31 @@ onMounted(async () => {
   resizeObserver.observe(containerEl.value);
 });
 
-// cleanup on unmount
 onBeforeUnmount(() => {
   resizeObserver?.disconnect();
   stage?.destroy();
 });
 
+watch(() => props.templateUrl, (url) => loadTemplateImage(url));
+watch(() => Object.keys(props.variableMap).join(","), () => syncNodesToVariableMap());
+
+// Watch changes deeply on variableMap to update colors, font families, or sizes in real-time
 watch(
-  () => props.templateUrl,
-  (url) => loadTemplateImage(url),
+  () => props.variableMap,
+  (newMap) => {
+    for (const [key, node] of textNodes.entries()) {
+      const entry = newMap[key];
+      if (entry) {
+        if (entry.fill) node.fill(entry.fill);
+        if (entry.fontFamily) node.fontFamily(`${entry.fontFamily}, sans-serif`);
+        if (entry.fontSize) node.fontSize(entry.fontSize);
+      }
+    }
+    layer?.batchDraw();
+  },
+  { deep: true }
 );
-watch(
-  () => Object.keys(props.variableMap).join(","),
-  () => syncNodesToVariableMap(),
-);
+
 watch(
   () => props.fieldValues,
   (vals) => {
