@@ -1,6 +1,14 @@
 // src/stores/userStore.js
 import { defineStore } from 'pinia'
 
+export const useMobileStore = defineStore('mobile', {
+  state: () => ({
+    userId: null,
+    userEmail: null,
+    userName: null,
+    isAuthenticated: false
+  }),
+})
 export const useUserStore = defineStore('user', {
   state: () => ({
     userId: null,
