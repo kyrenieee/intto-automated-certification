@@ -7,7 +7,7 @@ import { useRouter } from "vue-router";
 <template>
   <!-- settings container -->
   <main
-    class="w-full mx-auto p-10 rounded-4xl mt-10 text-white bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)]"
+    class="w-full max-w-350 mx-auto p-10 rounded-4xl mt-10 text-white bg-[rgba(255,255,255,0.06)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)]"
   >
     <h1 class="text-2xl font-medium mb-10">Settings</h1>
 

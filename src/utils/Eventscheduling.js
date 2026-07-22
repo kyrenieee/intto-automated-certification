@@ -1,5 +1,5 @@
-export const WHOLE_DAY_CUTOFF = "17:00"; // 5:00 PM
-export const WHOLE_DAY_CUTOFF_LABEL = "5:00 PM";
+export const WHOLE_DAY_CUTOFF = "12:00"; // 12:00 PM
+export const WHOLE_DAY_CUTOFF_LABEL = "12:00 PM";
 
 export function getDurationType(endTime) {
   if (!endTime) return "half";

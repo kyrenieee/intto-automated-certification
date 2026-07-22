@@ -28,7 +28,8 @@ const calculateChoicePercentage = (questionText, optionText) => {
 const getTextAnswers = (questionText) => {
   return surveyResponses.value
     .map(res => res.answers[questionText])
-    .filter(answer => answer !== undefined && answer.trim() !== '')
+    .filter(answer => answer !== undefined && answer !== null && String(answer).trim() !== '')
+    .map(answer => String(answer)) // ensures they render cleanly as strings in the template
 }
 
 const calculateAverageRating = (questionText) => {

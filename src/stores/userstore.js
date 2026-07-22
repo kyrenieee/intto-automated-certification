@@ -1,5 +1,51 @@
 // src/stores/userStore.js
 import { defineStore } from 'pinia'
+import { getLiveToken, submitEventResponse } from '../service/docustore.js'
+
+// this store previously had no formData, validateScan, or submitSurvey
+export const useMobileStore = defineStore('mobile', {
+  state: () => ({
+    formData: {
+      fullName: '',
+      email: '',
+      eventId: null,
+      answers: {},
+    },
+    tokenValid: false,
+  }),
+
+  actions: {
+    // checks the scanned token against the token qrstore.js last published for this event (see setLiveToken in docustore.js). 
+    // returns a boolean so the caller can gate the UI instead of assuming success.
+    async validateScan(token) {
+      const eventId = this.formData.eventId
+      if (!eventId || !token) {
+        this.tokenValid = false
+        return false
+      }
+
+      try {
+        const live = await getLiveToken(eventId)
+        const notExpired = !!live?.expiresAt && Date.now() < live.expiresAt
+        this.tokenValid = !!(live && live.currentToken === token && notExpired)
+      } catch (error) {
+        console.error('Token validation failed:', error)
+        this.tokenValid = false
+      }
+
+      return this.tokenValid
+    },
+
+    async submitSurvey() {
+      return submitEventResponse(this.formData.eventId, this.formData.answers)
+    },
+
+    resetFormData() {
+      this.formData = { fullName: '', email: '', eventId: null, answers: {} }
+      this.tokenValid = false
+    },
+  },
+})
 
 export const useUserStore = defineStore('user', {
   state: () => ({
