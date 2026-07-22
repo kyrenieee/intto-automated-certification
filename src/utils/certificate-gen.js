@@ -17,26 +17,41 @@ async function ensureFontLoaded(fontFamily, sampleSizePx = 100) {
   }
 }
 
-function drawFields(ctx, canvas, variableMap, fieldValues, fontFamily) {
+function drawFields(ctx, canvas, variableMap, fieldValues, fallbackFont) {
   for (const [key, entry] of Object.entries(variableMap)) {
     const text = fieldValues[key]
     if (text == null || text === '') continue
 
-    // Map the relative ratios saved from the editor to the full resolution natural image size
-    const fontSize = (entry.fontSize || 28) * (canvas.height / 375) // Default scale baseline reference
-    const x = entry.xRatio * canvas.width
-    const y = entry.yRatio * canvas.height
+    // use editor container dimensions saved in the placement, or default to standard workspace ratio
+    const editorW = entry.editorWidth || 800
+    const editorH = entry.editorHeight || 500 // standard 16:10 aspect ratio baseline
+    
+    const scaleX = canvas.width / editorW
+    const scaleY = canvas.height / editorH
 
-    ctx.font = `${entry.fontWeight || 'bold'} ${fontSize}px ${entry.fontFamily || fontFamily}, sans-serif`
+    // calculate exact coordinates relative to the natural image size
+    const x = (entry.x !== undefined ? entry.x : (entry.xRatio * editorW)) * scaleX
+    const y = (entry.y !== undefined ? entry.y : (entry.yRatio * editorH)) * scaleY
+    
+    // scale font size proportionally to the image height resolution
+    const fontSize = (entry.fontSize || 28) * scaleY
+
+    const fontFamily = entry.fontFamily ? `${entry.fontFamily}, sans-serif` : `${fallbackFont}, sans-serif`
+
+    ctx.save()
+    ctx.font = `bold ${fontSize}px ${fontFamily}`
     ctx.fillStyle = entry.fill || '#000000'
+    
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
+    
     ctx.fillText(text, x, y)
+    ctx.restore()
   }
 }
 
 export async function generateCertificate(templateUrl, variableMap, fieldValues, options = {}) {
-  const { fontFamily = 'Poppins', mimeType = 'image/png', quality = 0.92 } = options
+  const { fontFamily = 'Poppins', mimeType = 'image/jpeg', quality = 0.92 } = options
 
   await ensureFontLoaded(fontFamily)
   const img = await loadImage(templateUrl)
@@ -59,7 +74,7 @@ export async function generateCertificatesForParticipants(
   participants,
   options = {}
 ) {
-  const { fontFamily = 'Poppins', mimeType = 'image/png', quality = 0.92 } = options
+  const { fontFamily = 'Poppins', mimeType = 'image/jpeg', quality = 0.92 } = options
 
   await ensureFontLoaded(fontFamily)
   const img = await loadImage(templateUrl)

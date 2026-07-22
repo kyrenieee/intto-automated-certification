@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { setLiveToken } from "./docustore";
 
-const TOKEN_INTERVAL_MS = 15000;
+const TOKEN_INTERVAL_MS = 60000; // 1 minute
 // give a little slack past the interval so a token isn't rejected as
 // "expired" the instant the next tick's write is still in flight.
 const TOKEN_TTL_MS = TOKEN_INTERVAL_MS + 5000;

@@ -55,7 +55,7 @@
                   {{ fieldValues[variable.key] }}
                 </p>
 
-                <!-- Font & Color Customization Controls -->
+                <!-- font & color customization controls -->
                 <div class="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
                   <div>
                     <label class="text-[10px] uppercase tracking-wider text-gray-400 block mb-1">Color</label>
