@@ -2,51 +2,85 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useMobileStore } from "../../stores/userstore.js";
-import { getEventById } from "../../service/docustore.js"; 
+import { getEventById } from "../../service/docustore.js";
+import { generateCertificate } from "../../utils/certificate-gen.js"; // adjust path to wherever certificate-gen.js actually lives in your project
 
 const route = useRoute();
 const store = useMobileStore();
 
-// 0: Landing, 1: Form, 2: Survey, 3: Download Ready, 4: Downloading Spinner
+// 0: Landing, 1: Form, 2: Survey, 3: Certificate preview/download
 const currentStep = ref(0);
 const isLoading = ref(true);
+const isTokenValid = ref(false);
 const eventDetails = ref(null);
 const surveyAnswers = ref({});
 
+const isGeneratingCert = ref(false);
+const certificateUrl = ref(null);
+const certError = ref("");
+
 const nextStep = () => {
-  if (currentStep.value < 3) currentStep.value++;
+  // step 2 -> 3 is handled separately by proceedToCertificate, since it needs to submit the survey and generate the certificate first.
+  if (currentStep.value < 2) currentStep.value++;
 };
 
 const prevStep = () => {
   if (currentStep.value > 0) currentStep.value--;
 };
 
-const handleDownload = () => {
-  currentStep.value = 4;
-  
-  store.formData.answers = surveyAnswers.value;
-  store.formData.eventId = route.params.id; 
-  
-  store.submitSurvey();
+// was previously a fake setTimeout + alert() with no actual survey save or certificate generation.  
+// now saves the answers fr fr, then render the participant's actual certificate from the event's template + variableMap.
+const proceedToCertificate = async () => {
+  isGeneratingCert.value = true;
+  certError.value = "";
 
-  setTimeout(() => {
-    alert("Certificate Downloaded!");
-    currentStep.value = 0;
-  }, 2500);
+  try {
+    store.formData.answers = surveyAnswers.value;
+    store.formData.eventId = route.params.id;
+
+    await store.submitSurvey();
+
+    if (!eventDetails.value.templateUrl) {
+      throw new Error("This event has no certificate template configured.");
+    }
+
+    const formattedDate = eventDetails.value.startDate
+      ? new Date(eventDetails.value.startDate).toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : "";
+
+    certificateUrl.value = await generateCertificate(
+      eventDetails.value.templateUrl,
+      eventDetails.value.variableMap || {},
+      {
+        name: store.formData.fullName,
+        event_name: eventDetails.value.title,
+        date: formattedDate,
+      }
+    );
+
+    currentStep.value = 3;
+  } catch (error) {
+    console.error("Failed to finalize certificate:", error);
+    certError.value = "Something went wrong generating your certificate. Please try again.";
+  } finally {
+    isGeneratingCert.value = false;
+  }
 };
 
 onMounted(async () => {
-  // token verification
+  const eventId = route.params.id;
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get("token");
-  store.validateScan(token);
 
   // fetch actual event data
-  const eventId = route.params.id;
   if (eventId) {
     try {
       eventDetails.value = await getEventById(eventId);
-      
+
       if (eventDetails.value && eventDetails.value.questions) {
         eventDetails.value.questions.forEach((q) => {
           surveyAnswers.value[q.text] = null;
@@ -56,13 +90,19 @@ onMounted(async () => {
       console.error("Failed to load event for survey:", error);
     }
   }
-  
+
+  // token verification - previously the result was discarded, so an expired or forged token never actually blocked anything.
+  if (eventDetails.value) {
+    store.formData.eventId = eventId;
+    isTokenValid.value = await store.validateScan(token);
+  }
+
   isLoading.value = false;
 });
 </script>
 
 <template>
-  <main class="min-h-screen bg-[#1A2621] text-white font-poppins flex flex-col mx-auto relative max-w-md shadow-2xl overflow-x-hidden">
+  <main class="min-h-screen  text-white font-poppins flex flex-col mx-auto relative max-w-md shadow-2xl overflow-x-hidden">
     
     <!-- Loading Screen -->
     <div v-if="isLoading" class="flex flex-col items-center justify-center h-screen">
@@ -74,6 +114,13 @@ onMounted(async () => {
     <div v-else-if="!eventDetails" class="flex flex-col items-center justify-center h-screen p-8 text-center">
       <h2 class="text-xl font-bold mb-2">Event Not Found</h2>
       <p class="text-sm text-gray-400">This QR code might be expired or invalid.</p>
+    </div>
+
+    <!-- Error Screen if the scanned token doesn't match the event's current
+         rolling token (expired, stale screenshot, or forged link) -->
+    <div v-else-if="!isTokenValid" class="flex flex-col items-center justify-center h-screen p-8 text-center">
+      <h2 class="text-xl font-bold mb-2">This QR code has expired</h2>
+      <p class="text-sm text-gray-400">The code refreshes every few seconds. Please scan the code currently on screen.</p>
     </div>
 
     <!-- Step 0: Landing -->
@@ -212,40 +259,51 @@ onMounted(async () => {
 
       </div>
 
-      <!-- Step 3: Certificate Preview -->
+      <!-- Step 3: Certificate Preview & Download -->
       <div v-if="currentStep === 3" class="flex flex-col items-center gap-6 flex-1">
         <p class="text-[15px] font-medium mt-4">Your certificate is ready!</p>
-        <div class="w-full aspect-4/3 bg-white rounded-2xl border-4 border-[#3D5248] p-2 shadow-2xl relative overflow-hidden flex items-center justify-center">
-          <div class="text-center text-[#1C2D27] flex flex-col items-center p-4">
-            <span class="text-[10px] font-bold text-green-700 tracking-wider">CERTIFICATE OF RECOGNITION</span>
-            <p class="text-[8px] mt-2">This Certificate is Proudly Presented to</p>
-            <h3 class="text-lg font-bold font-serif mt-1 border-b border-gray-300 px-4 pb-1">
-              {{ store.formData.fullName || "Your Name" }}
-            </h3>
-          </div>
+
+        <p v-if="certError" class="text-sm text-red-300 text-center">{{ certError }}</p>
+
+        <img
+          v-if="certificateUrl"
+          :src="certificateUrl"
+          alt="Your certificate"
+          class="w-full rounded-2xl border-4 border-[#3D5248] shadow-2xl"
+        />
+        <div v-else class="w-full aspect-4/3 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-center text-sm text-gray-400">
+          Certificate unavailable
         </div>
+
+        <a
+          v-if="certificateUrl"
+          :href="certificateUrl"
+          :download="`${store.formData.fullName.trim() || 'certificate'}.png`"
+          class="w-3/4 max-w-50 py-2.5 rounded-full border border-[rgba(255,255,255,0.3)] hover:bg-[rgba(255,255,255,0.1)] text-white text-sm font-medium transition-colors text-center"
+        >
+          Download
+        </a>
       </div>
 
       <!-- Navigation Buttons -->
       <div class="mt-auto pt-8 flex flex-col items-center gap-6">
-        <button v-if="currentStep === 1 || currentStep === 2" @click="nextStep" class="w-3/4 max-w-50 py-2.5 rounded-full border border-[rgba(255,255,255,0.3)] hover:bg-[rgba(255,255,255,0.1)] text-white text-sm font-medium transition-colors">
+        <button v-if="currentStep === 1" @click="nextStep" class="w-3/4 max-w-50 py-2.5 rounded-full border border-[rgba(255,255,255,0.3)] hover:bg-[rgba(255,255,255,0.1)] text-white text-sm font-medium transition-colors">
           Next
         </button>
 
-        <button v-if="currentStep === 3" @click="handleDownload" class="w-3/4 max-w-50 py-2.5 rounded-full border border-[rgba(255,255,255,0.3)] hover:bg-[rgba(255,255,255,0.1)] text-white text-sm font-medium transition-colors">
-          Download
+        <button
+          v-if="currentStep === 2"
+          @click="proceedToCertificate"
+          :disabled="isGeneratingCert"
+          class="w-3/4 max-w-50 py-2.5 rounded-full border border-[rgba(255,255,255,0.3)] hover:bg-[rgba(255,255,255,0.1)] text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {{ isGeneratingCert ? "Generating…" : "Next" }}
         </button>
 
         <p class="text-[10px] text-gray-500 border-b border-gray-600 pb-0.5 mt-4 text-center">
           UC - Innovation and Technology Transfer Office
         </p>
       </div>
-    </div>
-
-    <!-- Step 4: Downloading Spinner -->
-    <div v-else-if="currentStep === 4" class="flex flex-col items-center justify-center h-full min-h-screen">
-      <p class="text-sm font-medium mb-6">Downloading Certificate</p>
-      <div class="w-10 h-10 border-4 border-gray-500 border-t-white rounded-full animate-spin"></div>
     </div>
   </main>
 </template>

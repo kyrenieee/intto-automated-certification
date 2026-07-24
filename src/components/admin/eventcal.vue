@@ -74,7 +74,7 @@ const statusForDate = (dateString) => {
   return hasWhole ? "whole" : "half";
 };
 
-// --- computed calendar grid math ---
+// computed calendar grid math 
 const currentMonthName = computed(() => monthNames[selectedMonthIndex.value]);
 
 const calendarDays = computed(() => {
@@ -345,6 +345,8 @@ const shiftMonth = (delta) => {
           >
             No scheduled event.
           </p>
+
+          <!-- display events for the selected day -->
           <div v-else class="flex flex-col gap-y-3 text-left">
             <div
               v-for="event in selectedDayEvents"
