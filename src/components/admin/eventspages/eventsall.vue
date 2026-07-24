@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { fetchAllEvents, getEventResponses } from "../../../service/docustore.js";
 
@@ -9,6 +9,10 @@ const searchQuery = ref("");
 const eventsList = ref([]);
 const isLoading = ref(true);
 const isExporting = ref(false);
+
+// --- Pagination State ---
+const currentPage = ref(1);
+const itemsPerPage = 6;
 
 // fetch events sa firestore and compute stats
 onMounted(async () => {
@@ -53,8 +57,6 @@ onMounted(async () => {
   }
 });
 
-
-
 // date calculation for events
 const filteredEvents = computed(() => {
   const today = new Date().toISOString().split("T")[0];
@@ -81,6 +83,24 @@ const filteredEvents = computed(() => {
 
     return matchesTab && matchesSearch;
   });
+});
+
+// --- pagination  ---
+
+watch([currentFilter, searchQuery], () => {
+  currentPage.value = 1;
+});
+
+// total pages nneded
+const totalPages = computed(() => {
+  return Math.ceil(filteredEvents.value.length / itemsPerPage);
+});
+
+// show 6 only
+const paginatedEvents = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return filteredEvents.value.slice(start, end);
 });
 
 // CSV Export Logic
@@ -144,12 +164,12 @@ const exportEventData = async (event) => {
 </script>
 
 <template>
-  <main class="w-full font-poppins pt-8">
+  <main class="w-full font-poppins pt-8 pb-12">
     <div class="w-full mx-auto px-6">
-      <section
-        class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4"
-      >
-        <div class="flex space-x-3">
+      
+      <!-- Top Bar: Filters & Search -->
+      <section class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div class="flex flex-wrap gap-3">
           <button
             @click="currentFilter = 'All Events'"
             :class="[
@@ -197,21 +217,9 @@ const exportEventData = async (event) => {
         </div>
 
         <div class="relative w-full md:w-80">
-          <div
-            class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
-          >
-            <svg
-              class="w-4 h-4 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              ></path>
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
           </div>
           <input
@@ -220,109 +228,114 @@ const exportEventData = async (event) => {
             placeholder="Search"
             class="w-full bg-[#32423B] text-white text-sm pl-10 pr-10 py-2.5 rounded-full border border-[#445A50] focus:outline-none focus:border-[#6C8A7D] transition"
           />
-          <div
-            class="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer"
-          >
-            <svg
-              class="w-4 h-4 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-              ></path>
-            </svg>
-          </div>
         </div>
       </section>
 
-      <div
-        class="hidden lg:block bg-[rgba(255,255,255,0.06)] rounded-4xl border border-[rgba(255,255,255,0.12)] px-8 py-5 mb-4 shadow-lg"
-      >
-        <div class="grid grid-cols-12 gap-4 items-center">
-          <div class="col-span-5 text-white text-lg font-medium">
-            Event Name
-          </div>
-          <div class="col-span-4 text-white text-lg font-medium">Summary</div>
-          <div class="col-span-3 text-white text-lg font-medium text-right">
-            Actions
-          </div>
-        </div>
+      <!-- Empty State -->
+      <div v-if="filteredEvents.length === 0 && !isLoading" class="text-center py-20 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.05)] rounded-3xl">
+        <p class="text-gray-400 text-lg">No events found matching your criteria.</p>
       </div>
 
-      <!-- EVENT ROWS (Transforms from Cards on Mobile -> Rows on Desktop) -->
-      <div
-        class="bg-[rgba(255,255,255,0.06)] rounded-4xl border border-[rgba(255,255,255,0.12)] p-4 shadow-lg flex flex-col gap-2"
-      >
+      <!-- EVENT CARDS GRID -->
+      <div v-else class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        
         <div
-          v-for="event in filteredEvents"
+          v-for="event in paginatedEvents" 
           :key="event.id"
-          class="flex flex-col lg:grid lg:grid-cols-12 gap-5 lg:gap-4 items-start lg:items-center px-4 py-5 lg:py-4 rounded-2xl hover:bg-[rgba(255,255,255,0.03)] transition duration-200 border border-white/5 lg:border-transparent"
+          class="bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-[2rem] p-6 shadow-lg hover:bg-[rgba(255,255,255,0.09)] transition-all duration-300 flex flex-col"
         >
-          <!-- 1. Event Name -->
-          <div class="w-full lg:col-span-5 flex items-center gap-4">
-            <div
-              class="w-10 h-10 shrink-0 rounded-xl bg-[#32423B] border border-gray-600 flex items-center justify-center"
-            >
+          <!-- event name -->
+          <div class="flex items-start gap-4 mb-6">
+            <div class="w-12 h-12 shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mt-0.5">
               <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
             </div>
-            <div>
-              <h3 class="text-white text-[15px] font-medium leading-tight">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-white text-[17px] font-semibold leading-snug truncate">
                 {{ event.title }}
               </h3>
-              <p class="text-gray-400 text-[11px] mt-1">
+              <p class="text-gray-400 text-xs mt-1.5 truncate">
                 {{ event.date }} • {{ event.location }}
               </p>
             </div>
           </div>
 
-          <!-- 2. Summary Statistics -->
-          <div class="w-full lg:col-span-4 flex items-center justify-around lg:justify-start gap-4 lg:gap-8 bg-white/5 lg:bg-transparent rounded-xl py-3 lg:py-0">
+          <!-- event stats -->
+          <div class="flex items-center justify-around bg-black/20 rounded-2xl py-4 mb-6 border border-white/5">
             <div class="flex flex-col items-center">
-              <span class="text-white text-[22px] font-semibold leading-none tracking-wide">{{ event.scans || 0 }}</span>
-              <span class="text-gray-400 text-[10px] mt-1">Scans</span>
+              <span class="text-white text-[24px] font-semibold leading-none tracking-wide">{{ event.realScans || 0 }}</span>
+              <span class="text-gray-400 text-[10px] uppercase tracking-wider mt-2">Scans</span>
             </div>
+            <div class="w-px h-10 bg-white/10"></div>
             <div class="flex flex-col items-center">
-              <span class="text-white text-[22px] font-semibold leading-none tracking-wide">{{ event.certs || 0 }}</span>
-              <span class="text-gray-400 text-[10px] mt-1">Certs</span>
+              <span class="text-white text-[24px] font-semibold leading-none tracking-wide">{{ event.realCerts || 0 }}</span>
+              <span class="text-gray-400 text-[10px] uppercase tracking-wider mt-2">Certs</span>
             </div>
+            <div class="w-px h-10 bg-white/10"></div>
             <div class="flex flex-col items-center">
-              <span class="text-white text-[22px] font-semibold leading-none tracking-wide">{{ event.survey || '0%' }}</span>
-              <span class="text-gray-400 text-[10px] mt-1">Survey</span>
+              <span class="text-white text-[24px] font-semibold leading-none tracking-wide">{{ event.realSurveyRate || '0%' }}</span>
+              <span class="text-gray-400 text-[10px] uppercase tracking-wider mt-2">Survey</span>
             </div>
           </div>
 
-          <!-- 3. Actions -->
-          <div class="w-full lg:col-span-3 flex items-center justify-between lg:justify-end gap-3 mt-1 lg:mt-0">
+          <!-- actions -->
+          <div class="flex items-center gap-3 mt-auto">
             <button 
               @click="router.push(`/event-active/${event.id}`)"
-              class="flex-1 lg:flex-none justify-center flex items-center gap-2 px-4 py-2 lg:py-1.5 rounded-full bg-[#52806B]/20 border border-[#52806B]/60 text-[#9FC2B0] text-[11px] font-medium hover:bg-[#52806B]/40 transition cursor-pointer"
+              class="flex-1 flex justify-center items-center gap-2 px-4 py-2.5 rounded-full bg-[#52806B]/20 border border-[#52806B]/60 text-[#9FC2B0] text-[12px] font-medium hover:bg-[#52806B]/40 transition cursor-pointer"
             >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-              </svg>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
               View Details
             </button>
             <button
               @click="exportEventData(event)"
               :disabled="isExporting"
-              class="flex-1 lg:flex-none justify-center flex items-center gap-2 px-4 py-2 lg:py-1.5 rounded-full bg-[#5D87A8]/20 border border-[#5D87A8]/60 text-[#A2C7E2] text-[11px] font-medium hover:bg-[#5D87A8]/40 transition cursor-pointer disabled:opacity-50"
+              class="flex-1 flex justify-center items-center gap-2 px-4 py-2.5 rounded-full bg-[#5D87A8]/20 border border-[#5D87A8]/60 text-[#A2C7E2] text-[12px] font-medium hover:bg-[#5D87A8]/40 transition cursor-pointer disabled:opacity-50"
             >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-              </svg>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
               Export Data
             </button>
           </div>
         </div>
       </div>
+
+      <!-- pagination  -->
+      <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-12">
+        <!-- prev -->
+        <button
+          @click="currentPage--"
+          :disabled="currentPage === 1"
+          class="flex items-center justify-center w-10 h-10 rounded-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] text-white hover:bg-[rgba(255,255,255,0.08)] transition disabled:opacity-30 disabled:cursor-not-allowed mr-2"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+
+        <!-- pages -->
+        <button
+          v-for="page in totalPages"
+          :key="page"
+          @click="currentPage = page"
+          :class="[
+            'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition cursor-pointer',
+            currentPage === page
+              ? 'bg-[#325243] text-white border border-[#446b58]'
+              : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
+          ]"
+        >
+          {{ page }}
+        </button>
+
+        <!-- next -->
+        <button
+          @click="currentPage++"
+          :disabled="currentPage === totalPages"
+          class="flex items-center justify-center w-10 h-10 rounded-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] text-white hover:bg-[rgba(255,255,255,0.08)] transition disabled:opacity-30 disabled:cursor-not-allowed ml-2"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+      </div>
+
     </div>
   </main>
 </template>
