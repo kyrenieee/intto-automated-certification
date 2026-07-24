@@ -148,7 +148,7 @@ onMounted(async () => {
           <input
             v-model="store.formData.fullName"
             type="text"
-            placeholder="Melinda A. Beninsig"
+            placeholder="Enter your full name"
             class="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.15)] rounded-full px-5 py-3 text-sm focus:outline-none focus:border-[#729281] transition text-white placeholder-gray-500"
           />
         </div>
@@ -157,7 +157,7 @@ onMounted(async () => {
           <input
             v-model="store.formData.email"
             type="email"
-            placeholder="mabeninsig@uc-bcf.edu.ph"
+            placeholder="example@gmail.com"
             class="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.15)] rounded-full px-5 py-3 text-sm focus:outline-none focus:border-[#729281] transition text-white placeholder-gray-500"
           />
         </div>

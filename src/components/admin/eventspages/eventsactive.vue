@@ -13,6 +13,9 @@ const isLoading = ref(true)
 const qrStore = useQrStore()
 const eventDetails = ref(null)
 const surveyResponses = ref([])
+const searchQuery = ref('')
+
+
 
 // stats
 const calculateChoicePercentage = (questionText, optionText) => {
@@ -71,6 +74,51 @@ onUnmounted(() => {
 const getProgressColor = (index) => {
   const colors = ['bg-orange-500', 'bg-teal-400', 'bg-rose-500', 'bg-blue-400']
   return colors[index % colors.length]
+}
+
+// participants logic
+const getParticipantName = (participant) => {
+  return participant.fullName || 'Unknown Participant';
+}
+
+const getParticipantEmail = (participant) => {
+  return participant.email || 'No email provided';
+}
+
+const getDepartment = (participant) => {
+  // Looks specifically for the exact question text from your Survey Builder
+  if (participant.answers && participant.answers["Which department are you affliated with"]) {
+    return participant.answers["Which department are you affliated with"];
+  }
+  if (participant.department) return participant.department; 
+  return "UC"; 
+}
+
+const filteredParticipants = computed(() => {
+  if (!searchQuery.value) return surveyResponses.value;
+  
+  const query = searchQuery.value.toLowerCase();
+  return surveyResponses.value.filter(participant => {
+    const nameMatch = getParticipantName(participant).toLowerCase().includes(query);
+    const emailMatch = getParticipantEmail(participant).toLowerCase().includes(query);
+    return nameMatch || emailMatch;
+  });
+});
+
+const formatTimestamp = (timestamp) => {
+  if (!timestamp) return 'Just now'
+  
+  const dateObj = timestamp.toDate ? timestamp.toDate() : new Date(timestamp)
+  if (isNaN(dateObj)) return 'Just now'
+
+  return dateObj.toLocaleString('en-US', {
+    month: '2-digit',
+    day: '2-digit',
+    year: '2-digit',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  })
 }
 </script>
 
@@ -221,13 +269,102 @@ const getProgressColor = (index) => {
           </div>
         </div>
 
+        <div v-else-if="activeTab === 'participants'" class="flex flex-col">
+          
+          <!-- Header & Search Bar -->
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
+            <div>
+              <h3 class="text-lg font-medium text-white tracking-wide">Participants</h3>
+              <p class="text-xs text-gray-400 mt-1">
+                {{ eventDetails.scans || 0 }} registered • {{ surveyResponses.length }} certificates downloaded
+              </p>
+            </div>
+            
+            <div class="relative w-full md:w-64">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+              <input 
+                v-model="searchQuery"
+                type="text" 
+                placeholder="Search" 
+                class="w-full bg-[#2E4238] text-white text-sm pl-9 pr-10 py-2 rounded-full border border-[#445A50] focus:outline-none focus:border-[#6C8A7D] transition placeholder-gray-400"
+              />
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Table -->
+          <div class="w-full overflow-x-auto">
+            <div class="min-w-[700px]">
+              
+              <!-- Table Headers -->
+              <div class="grid grid-cols-12 gap-4 pb-3 border-b border-white/10 text-[11px] font-semibold tracking-widest text-white uppercase mb-2">
+                <div class="col-span-4 pl-2">Name</div>
+                <div class="col-span-4">Email</div>
+                <div class="col-span-2 text-center">Certificate</div>
+                <div class="col-span-2 text-right pr-2">Scanned at</div>
+              </div>
+
+              <!-- Empty State -->
+              <div v-if="filteredParticipants.length === 0" class="text-center py-12 text-gray-500 text-sm">
+                No participants match your search criteria.
+              </div>
+
+              <!-- Participant Rows -->
+              <div 
+                v-else
+                v-for="participant in filteredParticipants" 
+                :key="participant.id"
+                class="grid grid-cols-12 gap-4 items-center py-3.5 border-b border-white/5 hover:bg-white/5 transition px-2 rounded-xl group"
+              >
+                <!-- Name & Department -->
+                <div class="col-span-4 flex flex-col">
+                  <span class="text-sm font-medium text-white group-hover:text-emerald-300 transition-colors">
+                    {{ getParticipantName(participant) }}
+                  </span>
+                  <span class="text-[9px] text-gray-400 mt-0.5 uppercase tracking-wider">
+                    {{ getDepartment(participant) }}
+                  </span>
+                </div>
+                
+                <!-- Email -->
+                <div class="col-span-4 text-xs text-gray-300 truncate pr-4">
+                  {{ getParticipantEmail(participant) }}
+                </div>
+                
+                <!-- Certificate Status -->
+                <div class="col-span-2 flex justify-center">
+                  <div class="w-6 h-6 rounded bg-[#415C4F] border border-[#5A7A6A] flex items-center justify-center">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                </div>
+                
+                <!-- Timestamp -->
+                <div class="col-span-2 text-right text-[11px] text-gray-400">
+                  {{ formatTimestamp(participant.timestamp) }}
+                </div>
+              </div>
+
+            </div>
+          </div>
+          
+        </div>
+
       </div>
     </div>
   </main>
 </template>
 
 <style scoped>
-/* Optional: Custom scrollbar for text answers to keep the UI clean */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }

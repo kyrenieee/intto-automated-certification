@@ -20,7 +20,7 @@ export const useQrStore = defineStore("qr", () => {
     generateToken(); 
     intervalId = setInterval(() => {
       generateToken();
-    }, 15000); // 15 seconds
+    }, 30000); // 30 seconds
   };
 
   const stopRollingQr = () => {
