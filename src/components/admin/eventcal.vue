@@ -2,6 +2,9 @@
 import { ref, computed, onMounted } from "vue";
 import { fetchAllEvents } from "../../service/docustore";
 import { getDurationType } from "../../utils/Eventscheduling.js";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 // --- state management ---
 const today = new Date();
@@ -49,9 +52,9 @@ onMounted(async () => {
 const todayString = computed(() => new Date().toISOString().split("T")[0]);
 
 const statusForEvent = (event) => {
-  const start = event.startDate || event.date;
+  const start = event?.startDate || event?.date;
   if (start < todayString.value) return "finished";
-  return event.durationType || getDurationType(event.endTime || event.time);
+  return event?.durationType || getDurationType(event?.endTime || event?.time);
 };
 
 // Robust date range checker using timestamps to avoid string comparison flaws
@@ -75,8 +78,8 @@ const statusForDate = (dateString) => {
 
   if (targetTime < todayTime) {
     const pastMatch = eventsList.value.some((e) => {
-      const start = e.startDate || e.date;
-      const end = e.endDate || start;
+      const start = e?.startDate || e?.date;
+      const end = e?.endDate || start;
       return isDateInRange(dateString, start, end);
     });
     if (pastMatch) return "finished";
@@ -84,20 +87,21 @@ const statusForDate = (dateString) => {
 
   // Find all events active on this specific grid date string (supporting multi-day ranges)
   const activeEvents = eventsList.value.filter((e) => {
-    const start = e.startDate || e.date;
-    const end = e.endDate || start;
+    const start = e?.startDate || e?.date;
+    const end = e?.endDate || start;
     return isDateInRange(dateString, start, end);
   });
 
   if (!activeEvents || activeEvents.length === 0) return null;
 
   const hasWhole = activeEvents.some(
-    (e) => (e.durationType || getDurationType(e.endTime || e.time)) === "whole"
+    (e) =>
+      (e?.durationType || getDurationType(e?.endTime || e?.time)) === "whole"
   );
   return hasWhole ? "whole" : "half";
 };
 
-// computed calendar grid math 
+// computed calendar grid math
 const currentMonthName = computed(() => monthNames[selectedMonthIndex.value]);
 
 const calendarDays = computed(() => {
@@ -115,7 +119,9 @@ const calendarDays = computed(() => {
     daysArray.push({
       dayNumber: totalDaysInPrevMonth - i,
       isCurrentMonth: false,
-      dateString: `${month === 0 ? year - 1 : year}-${String(month === 0 ? 12 : month).padStart(2, "0")}-${String(totalDaysInPrevMonth - i).padStart(2, "0")}`,
+      dateString: `${month === 0 ? year - 1 : year}-${String(
+        month === 0 ? 12 : month
+      ).padStart(2, "0")}-${String(totalDaysInPrevMonth - i).padStart(2, "0")}`,
     });
   }
 
@@ -124,7 +130,9 @@ const calendarDays = computed(() => {
     daysArray.push({
       dayNumber: i,
       isCurrentMonth: true,
-      dateString: `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`,
+      dateString: `${year}-${String(month + 1).padStart(2, "0")}-${String(
+        i
+      ).padStart(2, "0")}`,
     });
   }
 
@@ -135,7 +143,9 @@ const calendarDays = computed(() => {
     daysArray.push({
       dayNumber: i,
       isCurrentMonth: false,
-      dateString: `${month === 11 ? year + 1 : year}-${String(month === 11 ? 1 : month + 2).padStart(2, "0")}-${String(i).padStart(2, "0")}`,
+      dateString: `${month === 11 ? year + 1 : year}-${String(
+        month === 11 ? 1 : month + 2
+      ).padStart(2, "0")}-${String(i).padStart(2, "0")}`,
     });
   }
 
@@ -146,22 +156,25 @@ const selectedDayName = computed(() => {
   const dateObj = new Date(
     selectedYear.value,
     selectedMonthIndex.value,
-    selectedDay.value,
+    selectedDay.value
   );
   return dateObj.toLocaleDateString("en-US", { weekday: "long" });
 });
 
 const selectedDateString = computed(
   () =>
-    `${selectedYear.value}-${String(selectedMonthIndex.value + 1).padStart(2, "0")}-${String(selectedDay.value).padStart(2, "0")}`,
+    `${selectedYear.value}-${String(selectedMonthIndex.value + 1).padStart(
+      2,
+      "0"
+    )}-${String(selectedDay.value).padStart(2, "0")}`
 );
 
 // Show events that cover the selected date (supporting multi-day ranges)
 const selectedDayEvents = computed(() => {
   const target = selectedDateString.value;
   return eventsList.value.filter((e) => {
-    const start = e.startDate || e.date;
-    const end = e.endDate || start;
+    const start = e?.startDate || e?.date;
+    const end = e?.endDate || start;
     return isDateInRange(target, start, end);
   });
 });
@@ -232,10 +245,9 @@ const shiftMonth = (delta) => {
                 showYearDropdown = !showYearDropdown;
                 showMonthDropdown = false;
               "
-              class="flex items-center space-x-1.5 text-lg font-semibold text-[rgba(255,255,255,0.95)] hover:text-white transition"
+              class="flex items-center text-lg font-semibold text-[rgba(255,255,255,0.95)] hover:text-white transition cursor-pointer"
             >
               <span>{{ selectedYear }}</span>
-              <span class="text-xs text-[rgba(255,255,255,0.4)]">▼</span>
             </button>
             <div
               v-if="showYearDropdown"
@@ -259,10 +271,9 @@ const shiftMonth = (delta) => {
                 showMonthDropdown = !showMonthDropdown;
                 showYearDropdown = false;
               "
-              class="flex items-center space-x-1.5 text-lg font-semibold text-[rgba(255,255,255,0.95)] hover:text-white transition"
+              class="flex items-center text-lg font-semibold text-[rgba(255,255,255,0.95)] hover:text-white transition cursor-pointer"
             >
               <span>{{ currentMonthName }}</span>
-              <span class="text-xs text-[rgba(255,255,255,0.4)]">▼</span>
             </button>
             <div
               v-if="showMonthDropdown"
@@ -343,34 +354,42 @@ const shiftMonth = (delta) => {
       </div>
     </section>
 
-    <!-- right panel -  day info -->
+    <!-- right panel - day info -->
     <section
-      class="bg-[rgba(255,255,255,0.02)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-3xl p-6 flex flex-col justify-between text-center max-h-[calc(100vh-5rem)] overflow-y-auto"
+      class="bg-[rgba(255,255,255,0.02)] backdrop-blur-md border border-[rgba(255,255,255,0.12)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] rounded-3xl p-6 flex flex-col justify-between text-center h-130"
     >
-      <div>
+      <div class="flex flex-col h-full overflow-hidden">
         <h3
-          class="text-[rgba(255,255,255,0.45)] text-medium font-medium tracking-widest uppercase mt-2 mb-4"
+          class="text-[rgba(255,255,255,0.45)] text-medium font-medium tracking-widest uppercase mt-2 mb-2 shrink-0"
         >
           {{ currentMonthName }}
         </h3>
 
         <h1
-          class="text-9xl font-4xl tracking-tight text-white my-3 select-none"
+          class="text-9xl font-bold tracking-tight text-white my-1 select-none shrink-0"
         >
           {{ String(selectedDay).padStart(2, "0") }}
         </h1>
 
-        <p class="text-[rgba(255,255,255,0.75)] text-md tracking-wide mb-4">
+        <p
+          class="text-[rgba(255,255,255,0.75)] text-md tracking-wide mb-3 shrink-0"
+        >
           {{ selectedDayName }}
         </p>
 
-        <div class="py-4 text-xs tracking-wide">
-          <p v-if="isLoadingEvents" class="text-[rgba(255,255,255,0.3)]">
+        <!-- Scrollable events container keeping fixed panel height -->
+        <div
+          class="py-2 text-xs tracking-wide flex-1 overflow-y-auto pr-1 custom-scrollbar flex flex-col"
+        >
+          <p
+            v-if="isLoadingEvents"
+            class="text-[rgba(255,255,255,0.3)] my-auto"
+          >
             Loading events…
           </p>
           <p
             v-else-if="selectedDayEvents.length === 0"
-            class="text-[rgba(255,255,255,0.3)]"
+            class="text-[rgba(255,255,255,0.3)] my-auto"
           >
             No scheduled event.
           </p>
@@ -379,14 +398,17 @@ const shiftMonth = (delta) => {
           <div v-else class="flex flex-col gap-y-3 text-left">
             <div
               v-for="event in selectedDayEvents"
-              :key="event.id"
-              class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3"
+              :key="event?.id || event?.name || event?.title"
+              @click="event?.id && router.push(`/event-active/${event.id}`)"
+              class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 hover:bg-white/10 hover:border-white/30 transition cursor-pointer"
             >
-              <p class="text-white font-medium text-sm">{{ event.name || event.title }}</p>
+              <p class="text-white font-medium text-sm">
+                {{ event?.name || event?.title }}
+              </p>
               <p class="text-[rgba(255,255,255,0.5)] text-[11px] mt-1">
-                {{ event.startTime || "Time TBD"
-                }}{{ event.endTime ? ` – ${event.endTime}` : "" }} •
-                {{ event.location || "Location TBD" }}
+                {{ event?.startTime || "Time TBD"
+                }}{{ event?.endTime ? ` – ${event.endTime}` : "" }} •
+                {{ event?.location || "Location TBD" }}
               </p>
               <span
                 class="inline-block mt-2 text-[10px] font-medium px-2 py-0.5 rounded-full capitalize"
@@ -403,8 +425,8 @@ const shiftMonth = (delta) => {
                   statusForEvent(event) === "finished"
                     ? "Finished"
                     : statusForEvent(event) === "whole"
-                      ? "Whole Day"
-                      : "Half Day"
+                    ? "Whole Day"
+                    : "Half Day"
                 }}
               </span>
             </div>
@@ -412,10 +434,13 @@ const shiftMonth = (delta) => {
         </div>
       </div>
 
-      <div class="mt-6">
+      <div class="mt-4 shrink-0">
         <RouterLink
-          :to="{ path: '/eventcaldetails', query: { date: selectedDateString } }"
-          class="flex items-center justify-center w-full h-11 text-md font-normal tracking-wide text-[rgba(255,255,255,0.95)] bg-[linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.08))] border border-[rgba(255,255,255,0.15)] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.12))] active:bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.16))] transition-all duration-200 rounded-full mb-6 shadow-sm"
+          :to="{
+            path: '/eventcaldetails',
+            query: { date: selectedDateString },
+          }"
+          class="flex items-center justify-center w-full h-11 text-md font-normal tracking-wide text-[rgba(255,255,255,0.95)] bg-[linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.08))] border border-[rgba(255,255,255,0.15)] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.12))] active:bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.16))] transition-all duration-200 rounded-full mb-4 shadow-sm"
         >
           Schedule New Event
         </RouterLink>
@@ -444,3 +469,20 @@ const shiftMonth = (delta) => {
     </section>
   </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+</style>

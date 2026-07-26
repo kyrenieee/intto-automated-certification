@@ -50,60 +50,92 @@
         />
       </label>
 
-      <!-- Grid Row for Start Date, Start Time, End Date, and End Time -->
+      <!-- grid row for Start Date, Start Time, End Date, and End Time -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Event Start Date -->
         <label class="flex flex-col gap-y-2">
           <span
             class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]"
             >Event Start Date*</span
           >
-          <input
-            v-model="eventForm.startDate"
-            type="date"
-            readonly
-            disabled
-            class="w-full h-12 px-6 bg-[rgba(255,255,255,0.01)] border border-[rgba(255,255,255,0.15)] text-sm rounded-full outline-none transition-all duration-200 text-white/50 cursor-not-allowed color-scheme-dark"
-          />
+          <div class="relative">
+            <span class="absolute left-4 top-3.5 text-white pointer-events-none">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </span>
+            <input
+              v-model="eventForm.startDate"
+              type="date"
+              readonly
+              disabled
+              class="w-full h-12 pl-12 pr-6 bg-[rgba(255,255,255,0.01)] border border-[rgba(255,255,255,0.15)] text-sm rounded-full outline-none transition-all duration-200 text-white/50 cursor-not-allowed color-scheme-dark custom-date-input"
+            />
+          </div>
         </label>
 
+        <!-- event start time -->
         <label class="flex flex-col gap-y-2">
           <span
             class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]"
             >Event Start Time*</span
           >
-          <input
-            v-model="eventForm.startTime"
-            type="time"
-            class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
-          />
+          <div class="relative">
+            <span class="absolute left-4 top-3.5 text-white pointer-events-none">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </span>
+            <input
+              v-model="eventForm.startTime"
+              type="time"
+              class="w-full h-12 pl-12 pr-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark custom-date-input"
+            />
+          </div>
         </label>
 
+        <!-- event end date -->
         <label class="flex flex-col gap-y-2">
           <span
             class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]"
             >Event End Date*</span
           >
-          <input
-            v-model="eventForm.endDate"
-            type="date"
-            class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
-          />
+          <div class="relative">
+            <span class="absolute left-4 top-3.5 text-white pointer-events-none">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </span>
+            <input
+              v-model="eventForm.endDate"
+              type="date"
+              class="w-full h-12 pl-12 pr-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark custom-date-input"
+            />
+          </div>
         </label>
 
+        <!-- event end time -->
         <label class="flex flex-col gap-y-2">
           <span
             class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]"
             >Event End Time*</span
           >
-          <input
-            v-model="eventForm.endTime"
-            type="time"
-            class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
-          />
+          <div class="relative">
+            <span class="absolute left-4 top-3.5 text-white pointer-events-none">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </span>
+            <input
+              v-model="eventForm.endTime"
+              type="time"
+              class="w-full h-12 pl-12 pr-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark custom-date-input"
+            />
+          </div>
         </label>
       </div>
 
-      <!-- Schedule feedback notes -->
+      <!-- schedule feedback notes -->
       <div>
         <p v-if="scheduleError" class="text-xs text-red-300 mt-1">
           {{ scheduleError }}
@@ -142,7 +174,7 @@
             placeholder="Start typing an address or place name..."
             class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 placeholder:text-white/20 text-white pr-12"
           />
-          <!-- Spinner / Down Arrow indicator -->
+          <!-- spinner / down arrow indicator -->
           <span
             class="absolute right-5 top-3.5 text-xs text-white/30 pointer-events-none"
           >
@@ -154,7 +186,7 @@
           </span>
         </div>
 
-        <!-- overlay menu emerg glass -->
+        <!-- overlay menu emeng glass -->
         <div
           v-if="showLocationPicker && locationResults.length > 0"
           class="absolute left-0 top-18 w-full bg-[rgba(22,34,29,0.96)] backdrop-blur-xl border border-[rgba(255,255,255,0.15)] shadow-2xl rounded-2xl overflow-hidden z-30 max-h-60 overflow-y-auto"
@@ -314,4 +346,18 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+
+.custom-date-input::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
+}
+</style>

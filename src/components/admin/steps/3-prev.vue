@@ -93,25 +93,10 @@
             </div>
           </div>
         </div>
-
-        <div class="flex items-center gap-3">
-          <button
-            @click="$emit('back')"
-            class="border border-white/20 rounded-full px-6 py-3 text-sm hover:bg-white/10 transition-colors"
-          >
-            Back
-          </button>
-          <button
-            @click="$emit('next')"
-            class="border border-white/20 rounded-full px-8 py-4 text-base sm:text-[19px] hover:bg-white/10 transition-colors"
-          >
-            Continue
-          </button>
-        </div>
       </div>
 
-      <!-- right panel - konva canvas -->
-      <div class="lg:col-span-7 lg:pl-6">
+      <!-- right panel - konva canvas & navigation buttons -->
+      <div class="lg:col-span-7 lg:pl-6 flex flex-col gap-6">
         <div class="w-full aspect-16/10 bg-white rounded-2xl shadow-2xl overflow-hidden">
           <CertificateCanvas
             v-if="templatePreviewUrl"
@@ -124,9 +109,25 @@
             <p class="text-xs text-gray-400">Please go back to Step 2 and re-upload your certificate template.</p>
           </div>
         </div>
-        <p class="text-xs text-gray-400 mt-3">
+        <p class="text-xs text-gray-400 mt-1">
           Drag fields to reposition. Scroll over any text item to change its font size.
         </p>
+
+        <!-- navigation buttons placed at the very bottom right with a max width of 150px each -->
+        <div class="flex items-center justify-end gap-3 pt-4">
+          <button
+            @click="$emit('back')"
+            class="w-full max-w-[150px] border border-white/20 rounded-full py-3 text-sm font-medium hover:bg-white/10 transition-colors text-center cursor-pointer"
+          >
+            Back
+          </button>
+          <button
+            @click="$emit('next')"
+            class="w-full max-w-[150px] border border-white/20 rounded-full py-3 text-sm font-medium hover:bg-white/10 transition-colors text-center cursor-pointer"
+          >
+            Continue
+          </button>
+        </div>
       </div>
     </div>
   </main>
@@ -204,3 +205,4 @@ export default {
   },
 }
 </script>
+```[cite: 10]

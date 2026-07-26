@@ -121,45 +121,13 @@ const handleSubmit = () => {
     class="w-full bg-[rgba(255,255,255,0.06)] shadow-[0_24px_80px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)] rounded-4xl p-8 sm:p-12 text-white font-['Poppins'] select-none"
   >
     <!-- header -->
-    <div
-      class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-10"
-    >
-      <div>
-        <h1 class="text-3xl sm:text-[44px] font-bold tracking-tight">
-          Survey Builder
-        </h1>
-        <p class="text-base sm:text-lg text-gray-300 mt-1">
-          Collect feedback from participants.
-        </p>
-      </div>
-      <div class="flex items-center gap-3">
-        <button
-          @click="$emit('back')"
-          class="border border-white/20 rounded-full px-5 py-3 text-sm font-medium hover:bg-white/10 transition cursor-pointer"
-        >
-          Back
-        </button>
-        <button
-          @click="handleSubmit"
-          :disabled="wholeDayConflict"
-          class="flex items-center gap-2 border border-white/30 rounded-full px-6 py-3 text-base font-medium hover:bg-white/10 transition cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
-        >
-          Create Event
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-            ></path>
-          </svg>
-        </button>
-      </div>
+    <div class="mb-10">
+      <h1 class="text-3xl sm:text-[44px] font-bold tracking-tight">
+        Survey Builder
+      </h1>
+      <p class="text-base sm:text-lg text-gray-300 mt-1">
+        Collect feedback from participants.
+      </p>
     </div>
 
     <p
@@ -279,7 +247,7 @@ const handleSubmit = () => {
 
     <!-- bottom workspace controls -->
     <div
-      class="flex flex-wrap items-center gap-3 border-t border-white/10 pt-6"
+      class="flex flex-wrap items-center gap-3 border-t border-white/10 pt-6 mb-12"
     >
       <button
         @click="addQuestion('rating')"
@@ -337,6 +305,36 @@ const handleSubmit = () => {
           />
         </svg>
         Text Answer
+      </button>
+    </div>
+
+    <!-- very bottom navigation buttons (aligned right with a max-width of 150px each) -->
+    <div class="flex items-center justify-end gap-3 pt-6 border-t border-white/10">
+      <button
+        @click="$emit('back')"
+        class="w-full max-w-[150px] border border-white/20 rounded-full py-3 text-sm font-medium hover:bg-white/10 transition-colors text-center cursor-pointer"
+      >
+        Back
+      </button>
+      <button
+        @click="handleSubmit"
+        :disabled="wholeDayConflict"
+        class="w-full max-w-[150px] border border-white/30 rounded-full py-3 text-sm font-medium hover:bg-white/10 transition-colors text-center cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent flex items-center justify-center gap-2"
+      >
+        Create Event
+        <svg
+          class="w-4 h-4 shrink-0"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+          ></path>
+        </svg>
       </button>
     </div>
   </main>
