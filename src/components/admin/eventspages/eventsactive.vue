@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import QrcodeVue from 'qrcode.vue'
 import { getEventById, getEventResponses } from '../../../service/docustore.js' 
 import { useQrStore } from '../../../service/qrstore.js'
+import inttoLogo from '../../../assets/inttologo.svg'
 
 const route = useRoute()
 const router = useRouter()
@@ -14,8 +15,6 @@ const qrStore = useQrStore()
 const eventDetails = ref(null)
 const surveyResponses = ref([])
 const searchQuery = ref('')
-
-
 
 // stats
 const calculateChoicePercentage = (questionText, optionText) => {
@@ -87,7 +86,6 @@ const getParticipantEmail = (participant) => {
 }
 
 const getDepartment = (participant) => {
-  // Looks specifically for the exact question text from your Survey Builder
   if (participant.answers && participant.answers["Which department are you affliated with"]) {
     return participant.answers["Which department are you affliated with"];
   }
@@ -132,13 +130,11 @@ const formatTimestamp = (timestamp) => {
 
     <div v-else-if="!eventDetails" class="text-center py-20 text-gray-400">
       <h2 class="text-2xl font-bold text-white mb-2">Event Not Found</h2>
-      <p>The event you are looking for does not exist or has been deleted.</p>
       <button @click="router.push('/events')" class="mt-4 px-6 py-2 bg-white/10 rounded-full hover:bg-white/20 transition">Return to Events</button>
     </div>
 
-    <div v-else class="w-full max-w-5xl mx-auto px-6">
-      
-      <div class="bg-[rgba(255,255,255,0.06)] rounded-[2rem] border border-[rgba(255,255,255,0.12)] p-6 sm:p-10 shadow-2xl">
+      <div v-else class="w-full mx-auto px-6">      
+      <div class="bg-[rgba(255,255,255,0.06)] rounded-4xl border border-[rgba(255,255,255,0.12)] p-6 sm:p-10 shadow-2xl">
         
         <div class="mb-8">
           <button @click="router.back()" class="flex items-center text-gray-400 hover:text-white transition mb-4 cursor-pointer">
@@ -194,20 +190,32 @@ const formatTimestamp = (timestamp) => {
             </div>
           </div>
 
-          <div v-if="eventDetails" class="lg:col-span-1 bg-[#E8F5EE] rounded-[2rem] p-8 flex flex-col items-center justify-center text-center shadow-lg relative min-h-[350px]">            <h3 class="text-[#1A2621] text-lg font-bold">Event QR Code</h3>
-            <p class="text-[#65796E] text-xs mt-1 mb-8 leading-relaxed max-w-[200px]">
+          <div v-if="eventDetails" class="lg:col-span-1 bg-[#E8F5EE] rounded-4xl p-8 flex flex-col items-center justify-center text-center shadow-lg relative min-h-87.5">            
+            <h3 class="text-[#1A2621] text-lg font-bold">Event QR Code</h3>
+            <p class="text-[#65796E] text-xs mt-1 mb-8 leading-relaxed max-w-50">
               Share this with participants to start the certificate flow
             </p>
             
             <div class="relative bg-white p-3 rounded-2xl shadow-sm border border-gray-100 transition-opacity duration-300">
-                <qrcode-vue :value="qrStore.rollingUrl" :size="200" level="M" foreground="#1A2621" />              <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-1.5 shadow-md">
-                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                  <span class="text-[8px] font-bold text-gray-800">InTTO</span>
+                <qrcode-vue :value="qrStore.rollingUrl" :size="200" level="M" foreground="#1A2621" />              
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-1.5 shadow-md">
+                <div class="w-8 h-8 rounded-full bg-[#1A2621] flex items-center justify-center">
+                  <img :src="inttoLogo" alt="InTTO Logo" class="w-5 h-auto object-contain">
                 </div>
               </div>
             </div>
-            <p class="absolute bottom-5 text-[10px] font-medium text-[#65796E] animate-pulse">
-              Code refreshes automatically...
+
+            <a 
+              :href="`/present-qr/${eventDetails.id}`" 
+              target="_blank"
+              class="mt-8 z-10 w-full py-2.5 bg-[#1A2621] hover:bg-[#2c4038] text-white text-xs font-semibold rounded-full transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+              Present to Screen
+            </a>
+
+          <p class="mt-4 text-[10px] font-medium text-[#65796E] animate-pulse">              
+            Code refreshes automatically...
             </p>
           </div>
         </div>
@@ -303,7 +311,7 @@ const formatTimestamp = (timestamp) => {
 
           <!-- Data Table -->
           <div class="w-full overflow-x-auto">
-            <div class="min-w-[700px]">
+            <div class="min-w-175">
               
               <!-- Table Headers -->
               <div class="grid grid-cols-12 gap-4 pb-3 border-b border-white/10 text-[11px] font-semibold tracking-widest text-white uppercase mb-2">

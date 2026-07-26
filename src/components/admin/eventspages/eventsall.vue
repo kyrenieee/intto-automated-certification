@@ -242,7 +242,7 @@ const exportEventData = async (event) => {
         <div
           v-for="event in paginatedEvents" 
           :key="event.id"
-          class="bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-[2rem] p-6 shadow-lg hover:bg-[rgba(255,255,255,0.09)] transition-all duration-300 flex flex-col"
+          class="bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] rounded-4xl p-6 shadow-lg hover:bg-[rgba(255,255,255,0.09)] transition-all duration-300 flex flex-col"
         >
           <!-- event name -->
           <div class="flex items-start gap-4 mb-6">

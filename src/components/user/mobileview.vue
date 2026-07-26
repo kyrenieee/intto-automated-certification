@@ -127,7 +127,11 @@ onMounted(async () => {
     <div v-else-if="currentStep === 0" class="flex flex-col h-full min-h-screen">
       <div class="flex-1 flex flex-col items-center justify-center p-8 text-center pt-16">
         <div class="w-28 h-12 bg-[#25362F] rounded-full border border-gray-600 flex items-center justify-center mb-6">
-          <span class="font-bold text-xl tracking-widest text-white">INNO</span>
+          <img 
+            src="../../assets/inttologo.svg" 
+            alt="InTTO Logo" 
+            class="h-6 w-auto object-contain brightness-[1.2]" 
+          />
         </div>
         <!-- DYNAMIC TITLE -->
         <h1 class="text-xl font-semibold tracking-wide">
