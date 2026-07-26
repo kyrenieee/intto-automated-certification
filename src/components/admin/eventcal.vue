@@ -46,30 +46,53 @@ onMounted(async () => {
   }
 });
 
-// events grouped by their date string
-const eventsByDate = computed(() => {
-  const map = {};
-  for (const event of eventsList.value) {
-    if (!event.date) continue;
-    if (!map[event.date]) map[event.date] = [];
-    map[event.date].push(event);
-  }
-  return map;
-});
-
 const todayString = computed(() => new Date().toISOString().split("T")[0]);
 
 const statusForEvent = (event) => {
-  if (event.date < todayString.value) return "finished";
+  const start = event.startDate || event.date;
+  if (start < todayString.value) return "finished";
   return event.durationType || getDurationType(event.endTime || event.time);
 };
 
+// Robust date range checker using timestamps to avoid string comparison flaws
+const isDateInRange = (targetDateStr, startDateStr, endDateStr) => {
+  if (!startDateStr) return false;
+  const startStr = startDateStr.split("T")[0];
+  const endStr = (endDateStr || startDateStr).split("T")[0];
+  const targetStr = targetDateStr.split("T")[0];
+
+  const targetTime = new Date(targetStr + "T00:00:00").getTime();
+  const startTime = new Date(startStr + "T00:00:00").getTime();
+  const endTime = new Date(endStr + "T00:00:00").getTime();
+
+  return targetTime >= startTime && targetTime <= endTime;
+};
+
+// Range-aware status check for calendar grid cells
 const statusForDate = (dateString) => {
-  const events = eventsByDate.value[dateString];
-  if (!events || events.length === 0) return null;
-  if (dateString < todayString.value) return "finished";
-  const hasWhole = events.some(
-    (e) => (e.durationType || getDurationType(e.endTime || e.time)) === "whole",
+  const targetTime = new Date(dateString + "T00:00:00").getTime();
+  const todayTime = new Date(todayString.value + "T00:00:00").getTime();
+
+  if (targetTime < todayTime) {
+    const pastMatch = eventsList.value.some((e) => {
+      const start = e.startDate || e.date;
+      const end = e.endDate || start;
+      return isDateInRange(dateString, start, end);
+    });
+    if (pastMatch) return "finished";
+  }
+
+  // Find all events active on this specific grid date string (supporting multi-day ranges)
+  const activeEvents = eventsList.value.filter((e) => {
+    const start = e.startDate || e.date;
+    const end = e.endDate || start;
+    return isDateInRange(dateString, start, end);
+  });
+
+  if (!activeEvents || activeEvents.length === 0) return null;
+
+  const hasWhole = activeEvents.some(
+    (e) => (e.durationType || getDurationType(e.endTime || e.time)) === "whole"
   );
   return hasWhole ? "whole" : "half";
 };
@@ -133,9 +156,15 @@ const selectedDateString = computed(
     `${selectedYear.value}-${String(selectedMonthIndex.value + 1).padStart(2, "0")}-${String(selectedDay.value).padStart(2, "0")}`,
 );
 
-const selectedDayEvents = computed(
-  () => eventsByDate.value[selectedDateString.value] || [],
-);
+// Show events that cover the selected date (supporting multi-day ranges)
+const selectedDayEvents = computed(() => {
+  const target = selectedDateString.value;
+  return eventsList.value.filter((e) => {
+    const start = e.startDate || e.date;
+    const end = e.endDate || start;
+    return isDateInRange(target, start, end);
+  });
+});
 
 // --- actions ---
 const handleDayClick = (day) => {
@@ -299,7 +328,7 @@ const shiftMonth = (delta) => {
 
             <!-- status dots: emerald = whole day, amber = half day, grey = finished -->
             <span
-              v-if="day.isCurrentMonth && eventsByDate[day.dateString]"
+              v-if="day.isCurrentMonth && statusForDate(day.dateString)"
               class="absolute bottom-1.5 w-1.5 h-1.5 rounded-full"
               :class="{
                 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]':
@@ -353,7 +382,7 @@ const shiftMonth = (delta) => {
               :key="event.id"
               class="bg-white/5 border border-white/10 rounded-2xl px-4 py-3"
             >
-              <p class="text-white font-medium text-sm">{{ event.title }}</p>
+              <p class="text-white font-medium text-sm">{{ event.name || event.title }}</p>
               <p class="text-[rgba(255,255,255,0.5)] text-[11px] mt-1">
                 {{ event.startTime || "Time TBD"
                 }}{{ event.endTime ? ` – ${event.endTime}` : "" }} •
@@ -385,7 +414,7 @@ const shiftMonth = (delta) => {
 
       <div class="mt-6">
         <RouterLink
-          to="/eventcaldetails"
+          :to="{ path: '/eventcaldetails', query: { date: selectedDateString } }"
           class="flex items-center justify-center w-full h-11 text-md font-normal tracking-wide text-[rgba(255,255,255,0.95)] bg-[linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.08))] border border-[rgba(255,255,255,0.15)] hover:bg-[linear-gradient(180deg,rgba(255,255,255,0.18),rgba(255,255,255,0.12))] active:bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.16))] transition-all duration-200 rounded-full mb-6 shadow-sm"
         >
           Schedule New Event

@@ -50,53 +50,61 @@
         />
       </label>
 
-      <label class="flex flex-col gap-y-2">
-        <span
-          class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]"
-          >Event Start Date*</span
-        >
-        <input
-          v-model="eventForm.startDate"
-          type="date"
-          class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
-        />
-      </label>
+      <!-- Grid Row for Start Date, Start Time, End Date, and End Time -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <label class="flex flex-col gap-y-2">
+          <span
+            class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]"
+            >Event Start Date*</span
+          >
+          <input
+            v-model="eventForm.startDate"
+            type="date"
+            readonly
+            disabled
+            class="w-full h-12 px-6 bg-[rgba(255,255,255,0.01)] border border-[rgba(255,255,255,0.15)] text-sm rounded-full outline-none transition-all duration-200 text-white/50 cursor-not-allowed color-scheme-dark"
+          />
+        </label>
 
-      <label class="flex flex-col gap-y-2">
-        <span
-          class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]"
-          >Event Start Time*</span
-        >
-        <input
-          v-model="eventForm.startTime"
-          type="time"
-          class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
-        />
-      </label>
+        <label class="flex flex-col gap-y-2">
+          <span
+            class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]"
+            >Event Start Time*</span
+          >
+          <input
+            v-model="eventForm.startTime"
+            type="time"
+            class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
+          />
+        </label>
 
-      <label class="flex flex-col gap-y-2">
-        <span
-          class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]"
-          >Event End Date*</span
-        >
-        <input
-          v-model="eventForm.endDate"
-          type="date"
-          class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
-        />
-      </label>
+        <label class="flex flex-col gap-y-2">
+          <span
+            class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]"
+            >Event End Date*</span
+          >
+          <input
+            v-model="eventForm.endDate"
+            type="date"
+            class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
+          />
+        </label>
 
-      <label class="flex flex-col gap-y-2">
-        <span
-          class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]"
-          >Event End Time*</span
-        >
-        <input
-          v-model="eventForm.endTime"
-          type="time"
-          class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
-        />
+        <label class="flex flex-col gap-y-2">
+          <span
+            class="text-sm font-semibold tracking-wide text-[rgba(255,255,255,0.95)]"
+            >Event End Time*</span
+          >
+          <input
+            v-model="eventForm.endTime"
+            type="time"
+            class="w-full h-12 px-6 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.35)] focus:border-[rgba(255,255,255,0.7)] text-sm rounded-full outline-none transition-all duration-200 text-white color-scheme-dark"
+          />
+        </label>
+      </div>
 
+      <!-- Schedule feedback notes -->
+      <div>
         <p v-if="scheduleError" class="text-xs text-red-300 mt-1">
           {{ scheduleError }}
         </p>
@@ -116,7 +124,7 @@
           ⚠ This date already has a whole-day event booked - you won't be able
           to create this event unless you pick a different date.
         </p>
-      </label>
+      </div>
 
       <!-- live search loc -->
       <div class="flex flex-col gap-y-2 relative">
@@ -167,14 +175,14 @@
 </template>
 
 <script>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import {
   getDurationType,
   hasWholeDayConflict,
   WHOLE_DAY_CUTOFF_LABEL,
+  isWithinOfficeHours,
 } from "../../../utils/Eventscheduling";
 
-// replace with a real geocoding/places API call
 const MOCK_PLACES = [
   "University of the Cordilleras",
   "University of the Cordillera, Auditorium",
@@ -203,6 +211,13 @@ export default {
     const locationResults = ref([]);
     let searchTimeout = null;
 
+    onMounted(() => {
+      if (!props.eventForm.startDate) {
+        const todayStr = new Date().toISOString().split("T")[0];
+        props.eventForm.startDate = todayStr;
+      }
+    });
+
     const handleLocationInput = (e) => {
       const value = e.target.value;
       props.eventForm.location = value;
@@ -218,7 +233,7 @@ export default {
       isSearching.value = true;
       searchTimeout = setTimeout(() => {
         locationResults.value = MOCK_PLACES.filter((place) =>
-          place.toLowerCase().includes(value.toLowerCase()),
+          place.toLowerCase().includes(value.toLowerCase())
         );
         isSearching.value = false;
       }, 300);
@@ -231,7 +246,6 @@ export default {
     };
 
     const hideLocationPickerDelayed = () => {
-      // delay so a mousedown on a result item fires before the list unmounts
       setTimeout(() => {
         showLocationPicker.value = false;
       }, 250);
@@ -240,38 +254,40 @@ export default {
     const scheduleError = computed(() => {
       const { startDate, startTime, endDate, endTime } = props.eventForm;
       if (!startDate || !endDate) return "";
+
       if (startDate > endDate)
         return "Start date must be on or before the end date.";
-      if (
-        startDate === endDate &&
-        startTime &&
-        endTime &&
-        startTime >= endTime
-      ) {
-        return "End time must be after start time.";
+
+      if (startTime && endTime) {
+        if (!isWithinOfficeHours(startTime, endTime)) {
+          return "Events must be scheduled within office hours (8:00 AM – 5:00 PM)."
+        }
+        if (startDate === endDate && startTime >= endTime) {
+          return "End time must be after start time.";
+        }
       }
       return "";
     });
 
     const durationType = computed(() =>
-      getDurationType(props.eventForm.endTime),
+      getDurationType(props.eventForm.endTime)
     );
     const cutoffLabel = WHOLE_DAY_CUTOFF_LABEL;
 
     const wholeDayConflict = computed(() =>
-      hasWholeDayConflict(props.existingEvents, props.eventForm.endDate),
+      hasWholeDayConflict(props.existingEvents, props.eventForm.endDate)
     );
 
     const isValid = computed(
       () =>
         Boolean(
           props.eventForm.name &&
-          props.eventForm.startDate &&
-          props.eventForm.startTime &&
-          props.eventForm.endDate &&
-          props.eventForm.endTime &&
-          props.eventForm.location,
-        ) && !scheduleError.value,
+            props.eventForm.startDate &&
+            props.eventForm.startTime &&
+            props.eventForm.endDate &&
+            props.eventForm.endTime &&
+            props.eventForm.location
+        ) && !scheduleError.value
     );
 
     const handleNextStep = () => {

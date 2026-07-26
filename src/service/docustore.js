@@ -62,10 +62,9 @@ export const getEventById = async (eventId) => {
 // fetch survey responses for a specific event
 export const getEventResponses = async (eventId) => {
   try {
-    const responsesRef = collection(db, "responses");
-    
-    const q = query(responsesRef, where("eventId", "==", eventId));
-    const querySnapshot = await getDocs(q);
+    // points directly to the nested collection instead of filtering by where()
+    const responsesRef = collection(db, "events", eventId, "responses");
+    const querySnapshot = await getDocs(responsesRef);
     
     const responses = [];
     querySnapshot.forEach((doc) => {
@@ -85,8 +84,8 @@ export const getEventResponses = async (eventId) => {
 // into it (directly or via the store), but nothing wrote to "responses".
 export const submitEventResponse = async (eventId, answers) => {
   try {
-    const docRef = await addDoc(collection(db, "responses"), {
-      eventId,
+    // Nested path matches: /events/{eventId}/responses/{responseId}
+    const docRef = await addDoc(collection(db, "events", eventId, "responses"), {
       answers,
       submittedAt: new Date().toISOString(),
     });

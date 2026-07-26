@@ -32,6 +32,7 @@
 
 <script>
 import { ref, reactive, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import StepHeader from "./steps/stepheader.vue";
 import Step1Details from "./steps/1-details.vue";
 import Step2Template from "./steps/2-template.vue";
@@ -49,6 +50,7 @@ export default {
     Step4Response,
   },
   setup() {
+    const route = useRoute();
     const currentStep = ref(1);
 
     const eventForm = reactive({
@@ -65,16 +67,18 @@ export default {
       questions: [],
     });
 
-    // fetched once and shared with Step1 (warning) and Step4 (hard block) so both agree on whether the chosen date already has a whole-day event.
     const existingEvents = ref([]);
+    
     onMounted(async () => {
+      // Grab date from query parameter if passed from calendar view, otherwise default to today
+      const pickedDate = route.query.date || new Date().toISOString().split("T")[0];
+      eventForm.startDate = pickedDate;
+      eventForm.endDate = pickedDate; // default end date to start date as well
+
       try {
         existingEvents.value = await fetchAllEvents();
       } catch (err) {
-        console.error(
-          "Failed to load existing events for conflict check:",
-          err,
-        );
+        console.error("Failed to load existing events for conflict check:", err);
       }
     });
 
@@ -87,14 +91,13 @@ export default {
     };
 
     const saveEvent = () => {
-      // 4-response.vue's handleCreateEvent already persists the event to Firestore and redirects to /events-all - nothing left to do here except reset this
-
       currentStep.value = 1;
+      const fallbackDate = route.query.date || new Date().toISOString().split("T")[0];
       Object.assign(eventForm, {
         name: "",
-        startDate: "",
+        startDate: fallbackDate,
         startTime: "",
-        endDate: "",
+        endDate: fallbackDate,
         endTime: "",
         location: "",
         templateFile: null,
