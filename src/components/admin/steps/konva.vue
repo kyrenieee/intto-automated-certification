@@ -13,7 +13,6 @@ let stage = null,
   layer = null,
   bgRect = null,
   bgImageNode = null,
-  templateImg = null,
   resizeObserver = null;
 const textNodes = new Map();
 
@@ -31,18 +30,10 @@ function syncNodesToVariableMap() {
   layer.batchDraw();
 }
 
-const fitCover = (imgW, imgH, boxW, boxH) => {
-  const imgRatio = imgW / imgH,
-    boxRatio = boxW / boxH;
-  let width, height;
-  if (imgRatio > boxRatio) {
-    height = boxH;
-    width = boxH * imgRatio;
-  } else {
-    width = boxW;
-    height = boxW / imgRatio;
-  }
-  return { width, height, x: (boxW - width) / 2, y: (boxH - height) / 2 };
+
+const centerTextOrigin = (node) => {
+  node.offsetX(node.width() / 2);
+  node.offsetY(node.height() / 2);
 };
 
 const getStageSize = () => ({
@@ -50,16 +41,11 @@ const getStageSize = () => ({
   height: containerEl.value?.clientHeight || 375,
 });
 
+
 const positionBackground = () => {
-  if (!stage || !bgImageNode || !templateImg) return;
+  if (!stage || !bgImageNode) return;
   const { width: stageW, height: stageH } = getStageSize();
-  const fit = fitCover(
-    templateImg.naturalWidth,
-    templateImg.naturalHeight,
-    stageW,
-    stageH,
-  );
-  bgImageNode.setAttrs(fit);
+  bgImageNode.setAttrs({ x: 0, y: 0, width: stageW, height: stageH });
 };
 
 const positionNode = (key, node) => {
@@ -93,6 +79,10 @@ const createTextNode = (key) => {
     fontSize = Math.max(10, Math.min(100, fontSize + delta));
     node.fontSize(fontSize);
     entry.fontSize = fontSize;
+    const { width: stageW, height: stageH } = getStageSize();
+    entry.editorWidth = stageW;
+    entry.editorHeight = stageH;
+    centerTextOrigin(node);
     layer.batchDraw();
   });
 
@@ -100,10 +90,16 @@ const createTextNode = (key) => {
     const { width: stageW, height: stageH } = getStageSize();
     entry.xRatio = node.x() / stageW;
     entry.yRatio = node.y() / stageH;
+    entry.editorWidth = stageW;
+    entry.editorHeight = stageH;
   });
 
   layer.add(node);
   positionNode(key, node);
+  centerTextOrigin(node);
+  const { width: stageW, height: stageH } = getStageSize();
+  entry.editorWidth = stageW;
+  entry.editorHeight = stageH;
   textNodes.set(key, node);
 };
 
@@ -120,7 +116,6 @@ const loadTemplateImage = (url) => {
   const img = new window.Image();
   img.crossOrigin = "anonymous";
   img.onload = () => {
-    templateImg = img;
     if (bgImageNode) bgImageNode.destroy();
     bgImageNode = markRaw(new Konva.Image({ image: img }));
     layer.add(bgImageNode);
@@ -188,6 +183,7 @@ watch(
         if (entry.fill) node.fill(entry.fill);
         if (entry.fontFamily) node.fontFamily(`${entry.fontFamily}, sans-serif`);
         if (entry.fontSize) node.fontSize(entry.fontSize);
+        centerTextOrigin(node);
       }
     }
     layer?.batchDraw();
@@ -198,7 +194,10 @@ watch(
 watch(
   () => props.fieldValues,
   (vals) => {
-    for (const [key, node] of textNodes.entries()) node.text(vals[key] ?? key);
+    for (const [key, node] of textNodes.entries()) {
+      node.text(vals[key] ?? key);
+      centerTextOrigin(node);
+    }
     layer?.batchDraw();
   },
   { deep: true },
