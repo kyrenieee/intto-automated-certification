@@ -99,11 +99,10 @@ export const submitEventResponse = async (eventId, answers) => {
 // rolling QR token
 // qrstore.js generates a new token every minute, but it only ever lived in the  admin device's local Pinia state. A participant's phone has no way to  confirm the token it scanned is the "real" current one unless that token is published somewhere both devices can read. These two functions store  the event's current valid token (and its expiry) in its own collection.
 
-export const setLiveToken = async (eventId, token, expiresAt) => {
+export const setLiveToken = async (eventId, tokens) => {
   try {
     await setDoc(doc(db, "liveTokens", eventId), {
-      currentToken: token,
-      expiresAt, // epoch ms
+      tokens,
     });
   } catch (error) {
     console.error("Error publishing live token: ", error);
