@@ -1,10 +1,44 @@
-rules_version='2'
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admin/$(request.auth.uid));
+    }
+
+    match /admin/{adminId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /dashboard/{adminId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if isAdmin();
+
+      match /responses/{responseId} {
+        allow read, update, delete: if isAdmin();
+        allow create: if true;
+      }
+    }
+
+    // Participants scan this anonymously to validate their QR token, so it
+    // must be publicly readable. Only the admin's presenter screen (qrstore.js)
+    // publishes new tokens, so writes stay admin-only.
+    match /liveTokens/{eventId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2026, 7, 18);
+      allow read, write: if isAdmin();
     }
   }
 }
+<<<<<<< Updated upstream
 qss
+=======
+>>>>>>> Stashed changes

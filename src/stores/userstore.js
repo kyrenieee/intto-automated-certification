@@ -26,8 +26,9 @@ export const useMobileStore = defineStore('mobile', {
 
       try {
         const live = await getLiveToken(eventId)
-        const notExpired = !!live?.expiresAt && Date.now() < live.expiresAt
-        this.tokenValid = !!(live && live.currentToken === token && notExpired)
+        const now = Date.now()
+        const match = live?.tokens?.find((t) => t.token === token && now < t.expiresAt)
+        this.tokenValid = !!match
       } catch (error) {
         console.error('Token validation failed:', error)
         this.tokenValid = false
