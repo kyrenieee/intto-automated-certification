@@ -16,7 +16,7 @@ const routes = [
   { path: "/eventcal", component: eventcal },
   { path: "/eventcaldetails", component: eventcaldetails },
   { path: '/event-active/:id', component: eventsactive },
-  {path: '/claim/:id', name: 'MobileSurvey', component: () => import('./components/user/mobileview.vue')},
+  { path: '/claim/:id', name: 'MobileSurvey', component: () => import('./components/user/mobileview.vue')},
   { path: '/present-qr/:id', name: 'PresentQR', component: () => import('./components/user/qrpop.vue') }
 ];
 
