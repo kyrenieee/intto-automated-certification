@@ -23,9 +23,6 @@ const emit = defineEmits(["submit", "back"]);
 const router = useRouter();
 let nextId = 1;
 
-// Same shared reactive eventForm passed through from eventcaldetails.vue -
-// initialize its questions array in place rather than keeping a disconnected
-// local copy, so nothing needs to be emitted back up.
 if (!props.eventForm.questions || props.eventForm.questions.length === 0) {
   props.eventForm.questions = [
     { id: nextId++, type: "text", text: "What is your full name?" },
@@ -67,7 +64,7 @@ const removeOption = (questionIndex, optionIndex) => {
   q.options.splice(optionIndex, 1);
 };
 
-// A whole-day event already booked on this date blocks creating another one.
+// whole-day event already booked on this date blocks creating another one.
 const wholeDayConflict = computed(() =>
   hasWholeDayConflict(props.existingEvents, props.eventForm.endDate)
 );
@@ -85,14 +82,12 @@ const handleCreateEvent = async () => {
       title: props.eventForm?.name || "Untitled Event",
       startDate: props.eventForm?.startDate || "",
       startTime: props.eventForm?.startTime || "",
-      // 'date' stays the key the calendar groups events by (kept for
-      // backwards compatibility with existing records/queries).
+
       date: props.eventForm?.endDate || "",
       endTime: props.eventForm?.endTime || "",
       durationType: getDurationType(props.eventForm?.endTime),
       location: props.eventForm?.location || "",
-      // Needed by the participant-facing survey + certificate download flow -
-      // previously missing here, so getEventById() had nothing to serve.
+    
       templateUrl: props.eventForm?.templateUrl || null,
       templatePublicId: props.eventForm?.templatePublicId || null,
       variableMap: props.eventForm?.variableMap || {},
@@ -308,11 +303,11 @@ const handleSubmit = () => {
       </button>
     </div>
 
-    <!-- very bottom navigation buttons (aligned right with a max-width of 150px each) -->
+    <!-- very bottom navigation buttons  -->
     <div class="flex items-center justify-end gap-3 pt-6 border-t border-white/10">
       <button
         @click="$emit('back')"
-        class="w-full max-w-[150px] border border-white/20 rounded-full py-3 text-sm font-medium hover:bg-white/10 transition-colors text-center cursor-pointer"
+        class="w-full max-w-37.5 border border-white/20 rounded-full py-3 text-sm font-medium hover:bg-white/10 transition-colors text-center cursor-pointer"
       >
         Back
       </button>

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { getEventById, getEventResponses } from '../../../service/docustore.js' 
+import { getEventById, getEventResponses } from '../../service/docustore' 
 
 // 1. Initialize Route to grab the ID from the URL
 const route = useRoute()
@@ -61,7 +61,7 @@ const filteredParticipants = computed(() => {
       <!-- Event Header -->
       <div class="mb-8 border-b border-[rgba(255,255,255,0.1)] pb-8">
         <div class="w-24 h-10 bg-[#25362F] rounded-full border border-gray-600 flex items-center justify-center mb-6">
-          <img src="../../../assets/inttologo.svg" alt="InTTO Logo" class="h-5 w-auto object-contain brightness-[1.2]" />
+          <img src="../../assets/inttologo.svg" alt="InTTO Logo" class="h-5 w-auto object-contain brightness-[1.2]" />
         </div>
         <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">{{ eventDetails.title }}</h1>
         <p class="text-sm text-gray-400 mt-2">{{ eventDetails.startDate }} • {{ eventDetails.location }}</p>

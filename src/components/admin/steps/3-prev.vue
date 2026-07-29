@@ -9,7 +9,7 @@
             Certificate Preview
           </h1>
           <p class="text-base sm:text-lg font-normal text-gray-300/90 leading-relaxed mb-8">
-            Click a field to drop it onto the template, then drag it into place. Scroll over text to resize.
+            Click a field to drop it onto the template, then drag it into place. Scroll over text or QR code to resize.
           </p>
 
           <!-- variable cards -->
@@ -49,14 +49,14 @@
               <!-- customization controls for placed fields -->
               <div v-if="isPlaced(variable.key)" class="px-5 pb-5 flex flex-col gap-y-3">
                 <p class="text-xs text-gray-400">
-                  {{ variable.key === 'name' ? 'Filled per participant at generation time' : 'From Step 1' }}
+                  {{ variable.key === 'name' ? 'Filled per participant at generation time' : (variable.key === 'qr_code' ? 'Verification QR code linking to attendance list' : 'From Step 1') }}
                 </p>
-                <p class="text-sm font-medium text-white/90 bg-black/20 border border-white/10 rounded-full px-4 py-2">
-                  {{ fieldValues[variable.key] }}
+                <p class="text-sm font-medium text-white/90 bg-black/20 border border-white/10 rounded-full px-4 py-2 truncate">
+                  {{ variable.key === 'qr_code' ? fieldValues.qr_code : fieldValues[variable.key] }}
                 </p>
 
-                <!-- font & color customization controls -->
-                <div class="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
+                <!-- font & color customization controls (only for text fields) -->
+                <div v-if="variable.key !== 'qr_code'" class="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
                   <div>
                     <label class="text-[10px] uppercase tracking-wider text-gray-400 block mb-1">Color</label>
                     <div class="flex items-center gap-1.5">
@@ -81,6 +81,18 @@
                       <option v-for="font in fontOptions" :key="font" :value="font">{{ font }}</option>
                     </select>
                   </div>
+                </div>
+
+                <!-- Sizing control for QR code -->
+                <div v-if="variable.key === 'qr_code'" class="pt-2 border-t border-white/10">
+                  <label class="text-[10px] uppercase tracking-wider text-gray-400 block mb-1">QR Code Size (px)</label>
+                  <input 
+                    type="number" 
+                    v-model.number="eventForm.variableMap[variable.key].size" 
+                    min="50" 
+                    max="300" 
+                    class="w-full bg-black/30 text-white text-xs rounded-lg px-3 py-1.5 border border-white/10 outline-none focus:border-white/30"
+                  />
                 </div>
 
                 <p v-if="variable.key === 'event_name' && !eventForm.name" class="text-xs text-amber-300 mt-1">
@@ -110,14 +122,14 @@
           </div>
         </div>
         <p class="text-xs text-gray-400 mt-1">
-          Drag fields to reposition. Scroll over any text item to change its font size.
+          Drag fields to reposition. Scroll over text or QR code to change its size.
         </p>
 
         <!-- navigation buttons placed at the very bottom right with a max width of 150px each -->
         <div class="flex items-center justify-end gap-3 pt-4">
           <button
             @click="$emit('back')"
-            class="w-full max-w-37.5 **:border border-white/20 rounded-full py-3 text-sm font-medium hover:bg-white/10 transition-colors text-center cursor-pointer"
+            class="w-full max-w-37.5 border border-white/20 rounded-full py-3 text-sm font-medium hover:bg-white/10 transition-colors text-center cursor-pointer"
           >
             Back
           </button>
@@ -134,7 +146,7 @@
 </template>
 
 <script>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import CertificateCanvas from './konva.vue'
 
 export default {
@@ -152,6 +164,7 @@ export default {
       { key: 'name', label: 'Participant Name', required: true },
       { key: 'event_name', label: 'Event Name', required: false },
       { key: 'date', label: 'Completion Date', required: false },
+      { key: 'qr_code', label: 'Verification QR Code', required: false },
     ]
 
     const fontOptions = ['Poppins', 'Roboto', 'Playfair Display', 'Montserrat', 'Inter']
@@ -168,10 +181,16 @@ export default {
       return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
     })
 
+    const rawVerificationUrl = computed(() => {
+      const eventId = props.eventForm.id || 'sample-event-id'
+      return `${window.location.origin}/verification/${eventId}`
+    })
+
     const fieldValues = computed(() => ({
       name: '{{ Participant Name }}',
       event_name: props.eventForm.name || 'Event name not set',
       date: formattedDate.value || 'Date not set',
+      qr_code: rawVerificationUrl.value,
     }))
 
     const isPlaced = (key) => Boolean(props.eventForm.variableMap[key])
@@ -183,12 +202,21 @@ export default {
         return
       }
       const placedCount = Object.keys(map).length
-      map[variable.key] = {
-        xRatio: 0.5,
-        yRatio: 0.3 + placedCount * 0.15,
-        fontSize: 28,
-        fill: '#000000',
-        fontFamily: 'Poppins',
+      
+      if (variable.key === 'qr_code') {
+        map[variable.key] = {
+          xRatio: 0.8,
+          yRatio: 0.8,
+          size: 100,
+        }
+      } else {
+        map[variable.key] = {
+          xRatio: 0.5,
+          yRatio: 0.3 + placedCount * 0.15,
+          fontSize: 28,
+          fill: '#000000',
+          fontFamily: 'Poppins',
+        }
       }
     }
 
@@ -205,4 +233,3 @@ export default {
   },
 }
 </script>
-```[cite: 10]

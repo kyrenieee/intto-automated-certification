@@ -66,6 +66,9 @@ const proceedToCertificate = async () => {
         })
       : "";
 
+    // build the unique verification link for this specific event / certificate
+    const verificationUrl = `${window.location.origin}/verification/${route.params.id}`;
+
     certificateUrl.value = await generateCertificate(
       eventDetails.value.templateUrl,
       eventDetails.value.variableMap || {},
@@ -73,6 +76,7 @@ const proceedToCertificate = async () => {
         name: store.formData.fullName,
         event_name: eventDetails.value.title,
         date: formattedDate,
+        qr_code: verificationUrl, 
       }
     );
 
