@@ -117,13 +117,13 @@
         <div class="flex items-center justify-end gap-3 pt-4">
           <button
             @click="$emit('back')"
-            class="w-full max-w-[150px] border border-white/20 rounded-full py-3 text-sm font-medium hover:bg-white/10 transition-colors text-center cursor-pointer"
+            class="w-full max-w-37.5 **:border border-white/20 rounded-full py-3 text-sm font-medium hover:bg-white/10 transition-colors text-center cursor-pointer"
           >
             Back
           </button>
           <button
             @click="$emit('next')"
-            class="w-full max-w-[150px] border border-white/20 rounded-full py-3 text-sm font-medium hover:bg-white/10 transition-colors text-center cursor-pointer"
+            class="w-full max-w-37.5 border border-white/20 rounded-full py-3 text-sm font-medium hover:bg-white/10 transition-colors text-center cursor-pointer"
           >
             Continue
           </button>

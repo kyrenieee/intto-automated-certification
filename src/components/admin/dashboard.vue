@@ -1,15 +1,36 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { RouterLink } from "vue-router";
-// Adjust this path to point to your actual docustore file!
-import { fetchAllEvents } from "../../service/docustore.js";
+import { fetchAllEvents, getEventResponses } from "../../service/docustore.js";
 
 const eventsList = ref([]);
 const isLoading = ref(true);
 
 onMounted(async () => {
   try {
-    eventsList.value = await fetchAllEvents();
+    const rawEvents = await fetchAllEvents();
+    // fetch the responses for every event for summary
+    const enhancedEvents = await Promise.all(
+      rawEvents.map(async (event) => {
+        try {
+          const responses = await getEventResponses(event.id);
+          
+          const totalSurveys = responses ? responses.length : 0;
+          const totalScans = Number(event.scans) || 0;
+
+          return {
+            ...event,
+            realSurveys: totalSurveys, 
+            realScans: totalScans
+          };
+        } catch (err) {
+          console.error(`Error fetching stats for event ${event.id}:`, err);
+          return { ...event, realSurveys: 0, realScans: 0 };
+        }
+      })
+    );
+
+    eventsList.value = enhancedEvents;
   } catch (error) {
     console.error("Failed to load events for dashboard:", error);
   } finally {
@@ -45,29 +66,31 @@ const nextEventLabel = computed(() => {
   return `Next: ${upcomingEventsList.value[0].date}`;
 });
 
-// 3. ISSUED CERTIFICATES
+// 3. ISSUED CERTIFICATES (Calculated using true survey response lengths)
 const totalIssuedCerts = computed(() => {
-  return eventsList.value.reduce((sum, event) => sum + (parseInt(event.certs) || 0), 0);
+  return eventsList.value.reduce((sum, event) => sum + (event.realSurveys || 0), 0);
 });
 
-// 4. RESPONSE RATE
+// 4. RESPONSE RATE (Aggregating all scans and all true survey responses)
 const averageResponseRate = computed(() => {
   if (eventsList.value.length === 0) return "0%";
   
-  let totalSurveys = 0;
-  let totalScans = 0;
+  let totalGlobalSurveys = 0;
+  let totalGlobalScans = 0;
 
   eventsList.value.forEach(event => {
-    totalSurveys += parseInt(event.survey) || 0;
-    totalScans += parseInt(event.scans) || 0;
+    totalGlobalSurveys += (event.realSurveys || 0);
+    totalGlobalScans += (event.realScans || 0);
   });
 
-  if (totalScans === 0) return "0%";
+  // Apply the 100% fallback rule globally just in case scans break
+  if (totalGlobalScans === 0 && totalGlobalSurveys > 0) return "100%";
+  if (totalGlobalScans === 0) return "0%";
   
-  return ((totalSurveys / totalScans) * 100).toFixed(1) + "%";
+  return Math.round((totalGlobalSurveys / totalGlobalScans) * 100) + "%";
 });
 
-// prevent errors if not definde
+// prevent errors if not defined
 const trackDashboardClick = (action) => {
   console.log("Tracked:", action);
 };

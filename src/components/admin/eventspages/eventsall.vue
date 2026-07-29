@@ -14,7 +14,7 @@ const isExporting = ref(false);
 const currentPage = ref(1);
 const itemsPerPage = 6;
 
-// fetch events sa firestore and compute stats
+// fetch events from firestore and compute stats
 onMounted(async () => {
   try {
     const rawEvents = await fetchAllEvents();
@@ -26,12 +26,13 @@ onMounted(async () => {
           const responses = await getEventResponses(event.id);
           
           const totalSurveys = responses ? responses.length : 0;
-          const totalScans = parseInt(event.scans) || 0;
-          const totalCerts = parseInt(event.certs) || 0;
+          const totalCerts = totalSurveys; 
+          const totalScans = Number(event.scans) || 0; 
 
-          // cal event percentage
           let responseRate = "0%";
-          if (totalScans > 0) {
+          if (totalScans === 0 && totalSurveys > 0) {
+            responseRate = "100%";
+          } else if (totalScans > 0) {
             responseRate = Math.round((totalSurveys / totalScans) * 100) + "%";
           }
 
@@ -43,7 +44,7 @@ onMounted(async () => {
           };
         } catch (err) {
           console.error(`Error fetching stats for event ${event.id}:`, err);
-          // if error
+          // fallback if error
           return { ...event, realScans: 0, realCerts: 0, realSurveyRate: "0%" };
         }
       })
@@ -73,7 +74,7 @@ const filteredEvents = computed(() => {
     return { ...event, status: calculatedStatus };
   });
 
-  // 'filter'
+  // filter
   return eventsWithDynamicStatus.filter((event) => {
     const matchesTab = currentFilter.value === "All Events" || event.status === currentFilter.value;
     
@@ -91,7 +92,7 @@ watch([currentFilter, searchQuery], () => {
   currentPage.value = 1;
 });
 
-// total pages nneded
+// total pages needed
 const totalPages = computed(() => {
   return Math.ceil(filteredEvents.value.length / itemsPerPage);
 });

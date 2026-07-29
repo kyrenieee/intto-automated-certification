@@ -19,8 +19,22 @@ const isGeneratingCert = ref(false);
 const certificateUrl = ref(null);
 const certError = ref("");
 
+// Add an error ref at the top with your other variables
+const formError = ref("");
+
 const nextStep = () => {
-  // step 2 -> 3 is handled separately by proceedToCertificate, since it needs to submit the survey and generate the certificate first.
+  formError.value = "";
+
+  if (currentStep.value === 1) {
+    const name = store.formData.fullName?.trim() || "";
+    const email = store.formData.email?.trim() || "";
+
+    if (!name || !email) {
+      formError.value = "Please fill out both fields to continue.";
+      return; 
+    }
+  }
+
   if (currentStep.value < 2) currentStep.value++;
 };
 
@@ -194,8 +208,11 @@ onMounted(async () => {
 
       <!-- Step 1: Basic Information -->
       <div v-if="currentStep === 1" class="flex flex-col gap-6 flex-1">
+        <p v-if="formError" class="text-xs text-red-400 bg-red-400/10 p-3 rounded-lg border border-red-400/20">
+          {{ formError }}
+        </p>
         <div>
-          <label class="block text-xs text-gray-300 mb-2 pl-1">* Your Full Name</label>
+          <label class="block text-xs text-gray-300 mb-2 pl-1">Your Full Name</label>
           <input
             v-model="store.formData.fullName"
             type="text"
@@ -204,7 +221,7 @@ onMounted(async () => {
           />
         </div>
         <div>
-          <label class="block text-xs text-gray-300 mb-2 pl-1">* Email Address</label>
+          <label class="block text-xs text-gray-300 mb-2 pl-1">Email Address</label>
           <input
             v-model="store.formData.email"
             type="email"
@@ -290,8 +307,12 @@ onMounted(async () => {
       </div>
 
       <!-- Navigation Buttons -->
-      <div class="mt-auto pt-8 flex flex-col items-center gap-6">
-        <button v-if="currentStep === 1" @click="nextStep" class="w-3/4 max-w-50 py-2.5 rounded-full border border-[rgba(255,255,255,0.3)] hover:bg-[rgba(255,255,255,0.1)] text-white text-sm font-medium transition-colors">
+      <button 
+          v-if="currentStep === 1" 
+          @click="nextStep" 
+          :disabled="!store.formData.fullName || !store.formData.email"
+          class="w-3/4 max-w-50 py-2.5 rounded-full border border-[rgba(255,255,255,0.3)] hover:bg-[rgba(255,255,255,0.1)] text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+        >
           Next
         </button>
 
@@ -308,6 +329,5 @@ onMounted(async () => {
           UC - Innovation and Technology Transfer Office
         </p>
       </div>
-    </div>
   </main>
 </template>

@@ -44,6 +44,21 @@ const calculateAverageRating = (questionText) => {
   return (sum / ratings.length).toFixed(1)
 }
 
+const totalResponses = computed(() => surveyResponses.value.length)
+const totalCertificates = computed(() => surveyResponses.value.length)
+const totalScans = computed(() => {
+  return eventDetails.value?.scans || 0 
+})
+
+const responseRate = computed(() => {
+  const scans = Number(totalScans.value) || 0
+  const responses = Number(totalResponses.value) || 0
+  
+  if (scans === 0) {
+    return responses > 0 ? '100%' : '0%' 
+  }
+  return Math.round((responses / scans) * 100) + '%'
+})
 
 onMounted(async () => {
   try {
@@ -78,7 +93,7 @@ const getProgressColor = (index) => {
 
 // participants logic
 const getParticipantName = (participant) => {
-  return participant.fullName || 'Unknown Participant';
+  return participant.fullName || '';
 }
 
 const getParticipantEmail = (participant) => {
@@ -105,10 +120,10 @@ const filteredParticipants = computed(() => {
 });
 
 const formatTimestamp = (timestamp) => {
-  if (!timestamp) return 'Just now'
+  if (!timestamp) return ''
   
   const dateObj = timestamp.toDate ? timestamp.toDate() : new Date(timestamp)
-  if (isNaN(dateObj)) return 'Just now'
+  if (isNaN(dateObj)) return ''
 
   return dateObj.toLocaleString('en-US', {
     month: '2-digit',
@@ -138,7 +153,9 @@ const formatTimestamp = (timestamp) => {
         
         <div class="mb-8">
           <button @click="router.back()" class="flex items-center text-gray-400 hover:text-white transition mb-4 cursor-pointer">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
             Back
           </button>
           <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">{{ eventDetails.title }}</h1>
@@ -171,22 +188,22 @@ const formatTimestamp = (timestamp) => {
           <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div class="bg-[#5C7D6B] rounded-2xl p-6 shadow-inner relative">
               <p class="text-xs text-white/80 font-medium mb-3 tracking-wide">Certificates Issued</p>
-              <h3 class="text-4xl font-semibold">{{ eventDetails.certs || 0 }}</h3>
+              <h3 class="text-4xl font-semibold">{{ totalCertificates }}</h3>
             </div>
             
             <div class="bg-[#5C7D6B] rounded-2xl p-6 shadow-inner relative">
               <p class="text-xs text-white/80 font-medium mb-3 tracking-wide">QR Code Scans</p>
-              <h3 class="text-4xl font-semibold">{{ eventDetails.scans || 0 }}</h3>
+              <h3 class="text-4xl font-semibold">{{ totalScans }}</h3>
             </div>
             
             <div class="bg-[#5C7D6B] rounded-2xl p-6 shadow-inner relative">
               <p class="text-xs text-white/80 font-medium mb-3 tracking-wide">Survey Response Rate</p>
-              <h3 class="text-3xl font-semibold">{{ eventDetails.survey || '0%' }}</h3>
+              <h3 class="text-3xl font-semibold">{{ responseRate }}</h3>
             </div>
             
             <div class="bg-[#5C7D6B] rounded-2xl p-6 shadow-inner relative">
               <p class="text-xs text-white/80 font-medium mb-3 tracking-wide">Total Responses</p>
-              <h3 class="text-3xl font-semibold">{{ surveyResponses.length }}</h3>
+              <h3 class="text-3xl font-semibold">{{ totalResponses }}</h3>
             </div>
           </div>
 
