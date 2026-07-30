@@ -105,6 +105,37 @@ const paginatedEvents = computed(() => {
 });
 
 // CSV Export Logic
+const getExportName = (res) => {
+  if (res.fullName) return res.fullName;
+  if (res.formData?.fullName) return res.formData.fullName;
+  if (res.answers) {
+    const keys = Object.keys(res.answers);
+    const nameKey = keys.find(k => k.toLowerCase().includes('full name') || k.toLowerCase().includes('your name') || k.toLowerCase().includes('name'));
+    if (nameKey && res.answers[nameKey]) return res.answers[nameKey];
+  }
+  return 'Unknown';
+};
+
+const getExportEmail = (res) => {
+  if (res.email) return res.email;
+  if (res.formData?.email) return res.formData.email;
+  if (res.answers) {
+    const keys = Object.keys(res.answers);
+    const emailKey = keys.find(k => k.toLowerCase().includes('email'));
+    if (emailKey && res.answers[emailKey]) return res.answers[emailKey];
+  }
+  return 'No email';
+};
+
+const getExportTimestamp = (res) => {
+  const rawTime = res.timestamp || res.createdAt || res.submittedAt || res.date;
+  if (!rawTime) return 'N/A';
+  const dateObj = rawTime.toDate ? rawTime.toDate() : new Date(rawTime);
+  if (isNaN(dateObj)) return 'N/A';
+  return dateObj.toLocaleString();
+};
+
+// --- CSV Export Logic ---
 const exportEventData = async (event) => {
   if (isExporting.value) return;
   isExporting.value = true;
@@ -125,15 +156,13 @@ const exportEventData = async (event) => {
     let csvContent = allHeaders.join(",") + "\n";
 
     responses.forEach(res => {
-      let dateStr = "N/A";
-      if (res.timestamp) {
-        const dateObj = res.timestamp.toDate ? res.timestamp.toDate() : new Date(res.timestamp);
-        dateStr = !isNaN(dateObj) ? dateObj.toLocaleString() : "N/A";
-      }
+      const name = getExportName(res);
+      const email = getExportEmail(res);
+      const dateStr = getExportTimestamp(res);
 
       const row = [
-        `"${res.fullName || res.formData?.fullName || 'Unknown'}"`,
-        `"${res.email || res.formData?.email || 'No email'}"`,
+        `"${name}"`,
+        `"${email}"`,
         `"${dateStr}"`
       ];
 

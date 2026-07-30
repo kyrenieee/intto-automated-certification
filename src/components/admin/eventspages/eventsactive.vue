@@ -29,17 +29,9 @@ const calculateChoicePercentage = (questionText, optionText) => {
 
 const getTextAnswers = (questionText) => {
   return surveyResponses.value
-    .map(res => {
-      let answer = res.answers ? res.answers[questionText] : null;
-      
-      if (questionText.toLowerCase().includes('name') && !answer) {
-        answer = res.fullName || res.formData?.fullName;
-      }
-      
-      return answer;
-    })
+    .map(res => res.answers[questionText])
     .filter(answer => answer !== undefined && answer !== null && String(answer).trim() !== '')
-    .map(answer => String(answer)) 
+    .map(answer => String(answer)) // ensures they render cleanly as strings in the template
 }
 
 const calculateAverageRating = (questionText) => {
@@ -102,15 +94,6 @@ const getProgressColor = (index) => {
   const colors = ['bg-orange-500', 'bg-teal-400', 'bg-rose-500', 'bg-blue-400']
   return colors[index % colors.length]
 }
-
-const getStarFillPercentage = (averageStr, starIndex) => {
-  const average = parseFloat(averageStr) || 0;
-  
-  if (average >= starIndex) return 100; // Fully colored star
-  if (average <= starIndex - 1) return 0; // Completely empty star
-  
-  return Math.round((average - (starIndex - 1)) * 100); 
-};
 
 // participants logic
 
@@ -336,24 +319,10 @@ const getParticipantTimestamp = (participant) => {
             </div>
 
             <!-- Real Rating Data -->
-            <div v-else-if="question.type === 'rating'" class="flex items-center gap-1">
-              <div class="flex gap-1">
-                <div v-for="star in 5" :key="star" class="relative w-6 h-6">
-                  
-                  <!-- Background Star (Empty/Dimmed) -->
-                  <svg class="absolute inset-0 w-6 h-6 text-white/10 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                  </svg>
-                  
-                  <!-- Foreground Star (Yellow, dynamically clipped) -->
-                  <svg class="absolute inset-0 w-6 h-6 text-yellow-500 fill-current"
-                       :style="{ clipPath: `inset(0 ${100 - getStarFillPercentage(calculateAverageRating(question.text), star)}% 0 0)` }"
-                       viewBox="0 0 24 24">
-                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                  </svg>
-                  
-                </div>
-              </div>
+            <div v-else-if="question.type === 'rating'" class="flex items-center gap-2">
+              <svg v-for="star in 5" :key="star" class="w-6 h-6 text-yellow-500 fill-current" viewBox="0 0 24 24">
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+              </svg>
               <span class="text-sm text-gray-400 ml-2">({{ calculateAverageRating(question.text) }} Average)</span>
             </div>
 
