@@ -30,7 +30,18 @@ onMounted(async () => {
 })
 
 const getParticipantName = (participant) => {
-  return participant.fullName || '';
+  if (participant.fullName) return participant.fullName;
+  if (participant.formData?.fullName) return participant.formData.fullName;
+
+  if (participant.answers) {
+    const keys = Object.keys(participant.answers);
+    const nameKey = keys.find(k => k.toLowerCase().includes('full name') || k.toLowerCase().includes('your name') || k.toLowerCase().includes('name'));
+    if (nameKey && participant.answers[nameKey]) {
+      return participant.answers[nameKey];
+    }
+  }
+
+  return 'Unknown Participant';
 }
 
 const filteredParticipants = computed(() => {
@@ -54,9 +65,6 @@ const filteredParticipants = computed(() => {
     <div v-else>
       <!-- Event Header -->
       <div class="mb-8 border-b border-[rgba(255,255,255,0.1)] pb-8">
-        <div class="w-24 h-10 bg-[#25362F] rounded-full border border-gray-600 flex items-center justify-center mb-6">
-          <img src="../../assets/inttologo.svg" alt="InTTO Logo" class="h-5 w-auto object-contain brightness-[1.2]" />
-        </div>
         <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">{{ eventDetails.title }}</h1>
         <p class="text-sm text-gray-400 mt-2">{{ eventDetails.startDate }} • {{ eventDetails.location }}</p>
       </div>

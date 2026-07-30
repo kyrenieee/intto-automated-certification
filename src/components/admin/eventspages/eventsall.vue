@@ -27,7 +27,7 @@ onMounted(async () => {
           
           const totalSurveys = responses ? responses.length : 0;
           const totalCerts = totalSurveys; 
-          const totalScans = Number(event.scans) || 0; 
+          const totalScans =  totalSurveys; 
 
           let responseRate = "0%";
           if (totalScans === 0 && totalSurveys > 0) {

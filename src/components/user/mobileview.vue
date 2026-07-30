@@ -2,7 +2,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useMobileStore } from "../../stores/userstore.js";
-import { getEventById } from "../../service/docustore.js";
+import { getEventById, incrementEventScans } from "../../service/docustore.js";
 import { generateCertificate } from "../../utils/certificate-gen.js"; // adjust path to wherever certificate-gen.js actually lives in your project
 
 const route = useRoute();
@@ -33,11 +33,20 @@ const nextStep = () => {
       formError.value = "Please fill out both fields to continue.";
       return; 
     }
+
+    if (eventDetails.value && eventDetails.value.questions) {
+      eventDetails.value.questions.forEach((q) => {
+        const questionLower = q.text.toLowerCase();
+        
+        if (questionLower.includes('name') || questionLower.includes('full name')) {
+          surveyAnswers.value[q.text] = name;
+        }
+      });
+    }
   }
 
-  if (currentStep.value < 2) currentStep.value++;
+  if (currentStep.value < 3) currentStep.value++;
 };
-
 const prevStep = () => {
   if (currentStep.value > 0) currentStep.value--;
 };
@@ -110,9 +119,18 @@ onMounted(async () => {
   }
 
   // token verification - previously the result was discarded, so an expired or forged token never actually blocked anything.
-  if (eventDetails.value) {
+if (eventDetails.value) {
     store.formData.eventId = eventId;
     isTokenValid.value = await store.validateScan(token);
+
+    if (isTokenValid.value) {
+      const hasScanned = sessionStorage.getItem(`scanned_${eventId}`);
+      
+      if (!hasScanned) {
+        await incrementEventScans(eventId);
+        sessionStorage.setItem(`scanned_${eventId}`, "true"); // Mark them as counted
+      }
+    }
   }
 
   isLoading.value = false;
@@ -192,10 +210,7 @@ onMounted(async () => {
 
     <!-- Steps 1-3 Wrapper -->
     <div v-else-if="currentStep >= 1 && currentStep <= 3" class="flex flex-col flex-1 p-6 min-h-screen">
-      <button @click="prevStep" class="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition w-fit mt-4">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-        Back
-      </button>
+      
 
       <div class="mt-8 mb-8">
         <h2 class="text-xl font-semibold">Step {{ currentStep }} of 3</h2>
@@ -311,27 +326,55 @@ onMounted(async () => {
       </div>
 
       <!-- Navigation Buttons -->
-      <button 
-          v-if="currentStep === 1" 
-          @click="nextStep" 
-          :disabled="!store.formData.fullName || !store.formData.email"
-          class="w-3/4 max-w-50 py-2.5 rounded-full border border-[rgba(255,255,255,0.3)] hover:bg-[rgba(255,255,255,0.1)] text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-        >
-          Next
-        </button>
+      <div class="mt-auto pt-8 flex flex-col w-full">
+        
+        <!-- Button Container -->
+        <div class="flex justify-between items-center w-full px-2 mb-6">
+          
+          <!-- Back Button (Hidden on Step 3 since they are downloading) -->
+          <button 
+            v-if="currentStep < 3"
+            @click="prevStep" 
+            class="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back
+          </button>
+          
+          <!-- Empty div to push 'Next' to the right if 'Back' isn't there -->
+          <div v-else></div>
 
-        <button
-          v-if="currentStep === 2"
-          @click="proceedToCertificate"
-          :disabled="isGeneratingCert"
-          class="w-3/4 max-w-50 py-2.5 rounded-full border border-[rgba(255,255,255,0.3)] hover:bg-[rgba(255,255,255,0.1)] text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {{ isGeneratingCert ? "Generating…" : "Next" }}
-        </button>
+          <!-- Next Button (Step 1 with validation) -->
+          <button 
+            v-if="currentStep === 1" 
+            @click="nextStep" 
+            :disabled="!store.formData.fullName || !store.formData.email"
+            class="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          >
+            Next
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
 
-        <p class="text-[10px] text-gray-500 border-b border-gray-600 pb-0.5 mt-4 text-center">
+          <!-- Generate Button (Step 2) -->
+          <button
+            v-if="currentStep === 2"
+            @click="proceedToCertificate"
+            :disabled="isGeneratingCert"
+            class="flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          >
+            {{ isGeneratingCert ? "Generating…" : "Generate" }}
+            <svg v-if="!isGeneratingCert" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
+
+          <!-- Step 3 has no 'Next' button, just an empty space to balance layout -->
+          <div v-if="currentStep === 3"></div>
+        </div>
+
+        <!-- Footer Text -->
+        <p class="text-[10px] text-gray-500 border-t border-gray-600/50 pt-4 mt-2 text-center w-full">
           UC - Innovation and Technology Transfer Office
         </p>
+      </div>
       </div>
   </main>
 </template>

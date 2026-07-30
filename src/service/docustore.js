@@ -1,5 +1,5 @@
 import { db } from "./firebase-config";
-import {collection, addDoc, getDocs, orderBy, query, doc, getDoc, setDoc, where } from "firebase/firestore";
+import {collection, addDoc, getDocs, orderBy, query, doc, getDoc, setDoc, increment } from "firebase/firestore";
 
 //create new event func
 export const createEventInFirestore = async (eventData) => {
@@ -119,5 +119,17 @@ export const getLiveToken = async (eventId) => {
   } catch (error) {
     console.error("Error fetching live token: ", error);
     return null;
+  }
+};
+
+
+export const incrementEventScans = async (eventId) => {
+  try {
+    const eventRef = doc(db, "events", eventId); 
+    await updateDoc(eventRef, {
+      scans: increment(1)
+    });
+  } catch (error) {
+    console.error("Error updating scan count:", error);
   }
 };

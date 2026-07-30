@@ -29,9 +29,17 @@ const calculateChoicePercentage = (questionText, optionText) => {
 
 const getTextAnswers = (questionText) => {
   return surveyResponses.value
-    .map(res => res.answers[questionText])
+    .map(res => {
+      let answer = res.answers ? res.answers[questionText] : null;
+      
+      if (questionText.toLowerCase().includes('name') && !answer) {
+        answer = res.fullName || res.formData?.fullName;
+      }
+      
+      return answer;
+    })
     .filter(answer => answer !== undefined && answer !== null && String(answer).trim() !== '')
-    .map(answer => String(answer)) // ensures they render cleanly as strings in the template
+    .map(answer => String(answer)) 
 }
 
 const calculateAverageRating = (questionText) => {
@@ -47,11 +55,15 @@ const calculateAverageRating = (questionText) => {
 const totalResponses = computed(() => surveyResponses.value.length)
 const totalCertificates = computed(() => surveyResponses.value.length)
 const totalScans = computed(() => {
-  return eventDetails.value?.scans || 0 
+  const recordedScans = Number(eventDetails.value?.scans) || 0;
+  const actualResponses = Number(totalResponses.value) || 0;
+  
+  return Math.max(recordedScans, actualResponses);
 })
 
+
 const responseRate = computed(() => {
-  const scans = Number(totalScans.value) || 0
+  const scans = Number(totalScans.value) 
   const responses = Number(totalResponses.value) || 0
   
   if (scans === 0) {
@@ -91,21 +103,57 @@ const getProgressColor = (index) => {
   return colors[index % colors.length]
 }
 
+const getStarFillPercentage = (averageStr, starIndex) => {
+  const average = parseFloat(averageStr) || 0;
+  
+  if (average >= starIndex) return 100; // Fully colored star
+  if (average <= starIndex - 1) return 0; // Completely empty star
+  
+  return Math.round((average - (starIndex - 1)) * 100); 
+};
+
 // participants logic
+
 const getParticipantName = (participant) => {
-  return participant.fullName || '';
+  if (participant.fullName) return participant.fullName;
+  if (participant.formData?.fullName) return participant.formData.fullName;
+
+  if (participant.answers) {
+    const keys = Object.keys(participant.answers);
+    const nameKey = keys.find(k => k.toLowerCase().includes('full name') || k.toLowerCase().includes('your name') || k.toLowerCase().includes('name'));
+    if (nameKey && participant.answers[nameKey]) {
+      return participant.answers[nameKey];
+    }
+  }
+
+  return 'Unknown Participant';
 }
 
 const getParticipantEmail = (participant) => {
-  return participant.email || 'No email provided';
+  if (participant.email) return participant.email;
+  if (participant.formData?.email) return participant.formData.email;
+
+  if (participant.answers) {
+    const keys = Object.keys(participant.answers);
+    const emailKey = keys.find(k => k.toLowerCase().includes('email'));
+    if (emailKey && participant.answers[emailKey]) {
+      return participant.answers[emailKey];
+    }
+  }
+
+  return 'No email provided';
 }
 
 const getDepartment = (participant) => {
-  if (participant.answers && participant.answers["Which department are you affliated with"]) {
-    return participant.answers["Which department are you affliated with"];
+  if (participant.answers) {
+    const keys = Object.keys(participant.answers);
+    const deptKey = keys.find(k => k.toLowerCase().includes('department') || k.toLowerCase().includes('affiliated') || k.toLowerCase().includes('college'));
+    if (deptKey && participant.answers[deptKey]) {
+      return participant.answers[deptKey];
+    }
   }
-  if (participant.department) return participant.department; 
-  return "UC"; 
+  
+  return participant.department || participant.formData?.department || "UC"; 
 }
 
 const filteredParticipants = computed(() => {
@@ -119,11 +167,14 @@ const filteredParticipants = computed(() => {
   });
 });
 
-const formatTimestamp = (timestamp) => {
-  if (!timestamp) return ''
+const getParticipantTimestamp = (participant) => {
+  const rawTime = participant.timestamp || participant.createdAt || participant.submittedAt || participant.date;
   
-  const dateObj = timestamp.toDate ? timestamp.toDate() : new Date(timestamp)
-  if (isNaN(dateObj)) return ''
+  if (!rawTime) return 'N/A';
+  
+  const dateObj = rawTime.toDate ? rawTime.toDate() : new Date(rawTime);
+  
+  if (isNaN(dateObj)) return 'N/A';
 
   return dateObj.toLocaleString('en-US', {
     month: '2-digit',
@@ -132,7 +183,7 @@ const formatTimestamp = (timestamp) => {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true
-  })
+  });
 }
 </script>
 
@@ -285,10 +336,24 @@ const formatTimestamp = (timestamp) => {
             </div>
 
             <!-- Real Rating Data -->
-            <div v-else-if="question.type === 'rating'" class="flex items-center gap-2">
-              <svg v-for="star in 5" :key="star" class="w-6 h-6 text-yellow-500 fill-current" viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-              </svg>
+            <div v-else-if="question.type === 'rating'" class="flex items-center gap-1">
+              <div class="flex gap-1">
+                <div v-for="star in 5" :key="star" class="relative w-6 h-6">
+                  
+                  <!-- Background Star (Empty/Dimmed) -->
+                  <svg class="absolute inset-0 w-6 h-6 text-white/10 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                  </svg>
+                  
+                  <!-- Foreground Star (Yellow, dynamically clipped) -->
+                  <svg class="absolute inset-0 w-6 h-6 text-yellow-500 fill-current"
+                       :style="{ clipPath: `inset(0 ${100 - getStarFillPercentage(calculateAverageRating(question.text), star)}% 0 0)` }"
+                       viewBox="0 0 24 24">
+                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                  </svg>
+                  
+                </div>
+              </div>
               <span class="text-sm text-gray-400 ml-2">({{ calculateAverageRating(question.text) }} Average)</span>
             </div>
 
@@ -302,7 +367,7 @@ const formatTimestamp = (timestamp) => {
             <div>
               <h3 class="text-lg font-medium text-white tracking-wide">Participants</h3>
               <p class="text-xs text-gray-400 mt-1">
-                {{ eventDetails.scans || 0 }} registered • {{ surveyResponses.length }} certificates downloaded
+                {{ surveyResponses.length }} certificates downloaded
               </p>
             </div>
             
@@ -325,6 +390,8 @@ const formatTimestamp = (timestamp) => {
               </div>
             </div>
           </div>
+
+          <!-- participants -->
 
           <!-- Data Table -->
           <div class="w-full overflow-x-auto">
@@ -376,7 +443,7 @@ const formatTimestamp = (timestamp) => {
                 
                 <!-- Timestamp -->
                 <div class="col-span-2 text-right text-[11px] text-gray-400">
-                  {{ formatTimestamp(participant.timestamp) }}
+                  {{ getParticipantTimestamp(participant) }}
                 </div>
               </div>
 
