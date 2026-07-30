@@ -3,10 +3,8 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { getEventById, getEventResponses } from '../../service/docustore' 
 
-// 1. Initialize Route to grab the ID from the URL
 const route = useRoute()
 
-// 2. Define Reactive State Variables
 const isLoading = ref(true)
 const eventDetails = ref({})
 const surveyResponses = ref([])
@@ -16,13 +14,11 @@ onMounted(async () => {
   try {
     const eventId = route.params.id
     
-    // 3. Correctly destructure the Promise.all results
     const [fetchedEvent, fetchedResponses] = await Promise.all([
       getEventById(eventId),
       getEventResponses(eventId)
     ])
 
-    // 4. Assign the fetched data to our reactive variables
     eventDetails.value = fetchedEvent || {}
     surveyResponses.value = fetchedResponses || []
 
@@ -33,12 +29,10 @@ onMounted(async () => {
   }
 })
 
-// 5. Helper function to extract the name
 const getParticipantName = (participant) => {
-  return participant.fullName || 'Unknown Participant';
+  return participant.fullName || '';
 }
 
-// 6. Computed property for search filtering
 const filteredParticipants = computed(() => {
   if (!searchQuery.value) return surveyResponses.value;
   
