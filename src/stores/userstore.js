@@ -38,12 +38,15 @@ export const useMobileStore = defineStore('mobile', {
     },
 
     async submitSurvey() {
-      return submitEventResponse(this.formData.eventId, this.formData.answers)
-    },
-
-    resetFormData() {
-      this.formData = { fullName: '', email: '', eventId: null, answers: {} }
-      this.tokenValid = false
+      // Bundle everything together!
+      const payload = {
+        fullName: this.formData.fullName,
+        email: this.formData.email,
+        answers: this.formData.answers
+      };
+      
+      // Send the entire payload, not just the answers
+      return submitEventResponse(this.formData.eventId, payload);
     },
   },
 })
