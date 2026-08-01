@@ -18,34 +18,71 @@ const searchQuery = ref('')
 
 // stats
 const calculateChoicePercentage = (questionText, optionText) => {
-  if (!surveyResponses.value.length) return 0
+  if (!surveyResponses.value.length) return 0;
   
-  const totalAnswers = surveyResponses.value.filter(res => res.answers[questionText]).length
-  if (totalAnswers === 0) return 0
+  const totalAnswers = surveyResponses.value.filter(res => {
+    const actualAnswers = res.answers?.answers || res.answers || {};
+    return actualAnswers[questionText] !== undefined && actualAnswers[questionText] !== null && String(actualAnswers[questionText]).trim() !== '';
+  }).length;
+  
+  if (totalAnswers === 0) return 0;
 
-  const specificAnswers = surveyResponses.value.filter(res => res.answers[questionText] === optionText).length
-  return Math.round((specificAnswers / totalAnswers) * 100)
+  const specificAnswers = surveyResponses.value.filter(res => {
+    const actualAnswers = res.answers?.answers || res.answers || {};
+    return actualAnswers[questionText] === optionText;
+  }).length;
+  
+  return Math.round((specificAnswers / totalAnswers) * 100);
 }
 
 const getTextAnswers = (questionText) => {
   return surveyResponses.value
-    .map(res => res.answers[questionText])
+    .map(res => {
+      const actualAnswers = res.answers?.answers || res.answers || {};
+      let answer = actualAnswers[questionText];
+      
+      if (questionText.toLowerCase().includes('name') && !answer) {
+        answer = res.fullName || res.formData?.fullName;
+      }
+      
+      return answer;
+    })
     .filter(answer => answer !== undefined && answer !== null && String(answer).trim() !== '')
-    .map(answer => String(answer)) // ensures they render cleanly as strings in the template
+    .map(answer => String(answer)); // ensures they render cleanly as strings in the template
 }
 
 const calculateAverageRating = (questionText) => {
-  const ratings = surveyResponses.value
-    .map(res => res.answers[questionText])
-    .filter(rating => typeof rating === 'number')
+  if (!surveyResponses.value.length) return 0;
+
+  let totalRating = 0;
+  let count = 0;
+  
+  surveyResponses.value.forEach(res => {
+    const actualAnswers = res.answers?.answers || res.answers || {};
+    const rating = Number(actualAnswers[questionText]);
     
-  if (!ratings.length) return 0
-  const sum = ratings.reduce((a, b) => a + b, 0)
-  return (sum / ratings.length).toFixed(1)
+    if (!isNaN(rating) && rating > 0) {
+      totalRating += rating;
+      count++;
+    }
+  });
+  
+  if (count === 0) return 0;
+  return (totalRating / count).toFixed(1);
+}
+
+const getStarFillPercentage = (averageStr, starIndex) => {
+  const average = parseFloat(averageStr) || 0;
+  
+  if (average >= starIndex) return 100;
+  if (average <= starIndex - 1) return 0;
+  
+  return Math.round((average - (starIndex - 1)) * 100);
 }
 
 const totalResponses = computed(() => surveyResponses.value.length)
 const totalCertificates = computed(() => surveyResponses.value.length)
+
 const totalScans = computed(() => {
   const recordedScans = Number(eventDetails.value?.scans) || 0;
   const actualResponses = Number(totalResponses.value) || 0;
@@ -53,16 +90,20 @@ const totalScans = computed(() => {
   return Math.max(recordedScans, actualResponses);
 })
 
-
 const responseRate = computed(() => {
-  const scans = Number(totalScans.value) 
-  const responses = Number(totalResponses.value) || 0
+  const scans = Number(totalScans.value);
+  const responses = Number(totalResponses.value) || 0;
   
   if (scans === 0) {
-    return responses > 0 ? '100%' : '0%' 
+    return responses > 0 ? '100%' : '0%';
   }
-  return Math.round((responses / scans) * 100) + '%'
+  return Math.round((responses / scans) * 100) + '%';
 })
+
+const getProgressColor = (index) => {
+  const colors = ['bg-orange-500', 'bg-teal-400', 'bg-rose-500', 'bg-blue-400'];
+  return colors[index % colors.length];
+}
 
 onMounted(async () => {
   try {
@@ -84,16 +125,8 @@ onMounted(async () => {
   } finally {
     isLoading.value = false;
   }
-})
-
-onUnmounted(() => {
   qrStore.stopRollingQr()
 })
-
-const getProgressColor = (index) => {
-  const colors = ['bg-orange-500', 'bg-teal-400', 'bg-rose-500', 'bg-blue-400']
-  return colors[index % colors.length]
-}
 
 // participants logic
 
@@ -319,10 +352,24 @@ const getParticipantTimestamp = (participant) => {
             </div>
 
             <!-- Real Rating Data -->
-            <div v-else-if="question.type === 'rating'" class="flex items-center gap-2">
-              <svg v-for="star in 5" :key="star" class="w-6 h-6 text-yellow-500 fill-current" viewBox="0 0 24 24">
-                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-              </svg>
+            <div v-else-if="question.type === 'rating'" class="flex items-center gap-1">
+              <div class="flex gap-1">
+                <div v-for="star in 5" :key="star" class="relative w-6 h-6">
+                  
+                  <!-- Background Star (Empty/Dimmed) -->
+                  <svg class="absolute inset-0 w-6 h-6 text-white/10 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                  </svg>
+                  
+                  <!-- Foreground Star (Yellow, dynamically clipped) -->
+                  <svg class="absolute inset-0 w-6 h-6 text-yellow-500 fill-current"
+                       :style="{ clipPath: `inset(0 ${100 - getStarFillPercentage(calculateAverageRating(question.text), star)}% 0 0)` }"
+                       viewBox="0 0 24 24">
+                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                  </svg>
+                  
+                </div>
+              </div>
               <span class="text-sm text-gray-400 ml-2">({{ calculateAverageRating(question.text) }} Average)</span>
             </div>
 

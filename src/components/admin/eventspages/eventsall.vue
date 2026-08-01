@@ -135,7 +135,6 @@ const getExportTimestamp = (res) => {
   return dateObj.toLocaleString();
 };
 
-// --- CSV Export Logic ---
 const exportEventData = async (event) => {
   if (isExporting.value) return;
   isExporting.value = true;
@@ -150,7 +149,12 @@ const exportEventData = async (event) => {
     }
 
     const standardHeaders = ["Name", "Email", "Timestamp"];
-    const dynamicHeaders = responses[0].answers ? Object.keys(responses[0].answers) : [];
+    
+    // SMART HEADER DETECTION: Find the first response with answers, handling the double-nesting
+    const firstRes = responses.find(r => r.answers);
+    const sampleAnswers = firstRes ? (firstRes.answers.answers || firstRes.answers) : {};
+    const dynamicHeaders = Object.keys(sampleAnswers);
+    
     const allHeaders = [...standardHeaders, ...dynamicHeaders];
 
     let csvContent = allHeaders.join(",") + "\n";
@@ -166,9 +170,19 @@ const exportEventData = async (event) => {
         `"${dateStr}"`
       ];
 
+      // SMART ANSWER EXTRACTION: Look inside answers.answers if it exists
+      const actualAnswers = res.answers?.answers || res.answers || {};
+
       dynamicHeaders.forEach(header => {
-        const answer = res.answers && res.answers[header] ? res.answers[header] : "";
-        row.push(`"${answer}"`); 
+        let answer = actualAnswers[header];
+        
+        // Fallback for blank fields
+        if (answer === undefined || answer === null) {
+          answer = "";
+        }
+
+        // Clean up formatting to prevent CSV breaking
+        row.push(`"${String(answer).replace(/"/g, '""')}"`); 
       });
 
       csvContent += row.join(",") + "\n";
@@ -178,7 +192,6 @@ const exportEventData = async (event) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    // format filename: Event_Name_Data.csv
     link.setAttribute("download", `${event.title.replace(/\s+/g, '_')}_Data.csv`);
     document.body.appendChild(link);
     link.click();
