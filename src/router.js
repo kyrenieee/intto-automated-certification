@@ -8,6 +8,7 @@ import settings from "./components/admin/settings.vue";
 import eventcal from "./components/admin/eventcal.vue";
 import eventcaldetails from "./components/admin/eventcaldetails.vue";
 import eventsactive from "./components/admin/eventspages/eventsactive.vue";
+import techdocs from "./components/admin/techdocs.vue";
 
 const routes = [
   { path: "/", component: login },
@@ -15,12 +16,14 @@ const routes = [
   { path: '/present-qr/:id', name: 'PresentQR', component: () => import('./components/user/qrpop.vue') },
   { path: '/verification/:id', name: 'CertificateVerification', component: () => import('./components/user/verification.vue')},
   
+  
   { path: "/dashboard", component: dashboard, meta: { requiresAuth: true } },
   { path: "/events", component: eventsall, meta: { requiresAuth: true } },
   { path: "/settings", component: settings, meta: { requiresAuth: true } },
   { path: "/eventcal", component: eventcal, meta: { requiresAuth: true } },
   { path: "/eventcaldetails", component: eventcaldetails, meta: { requiresAuth: true } },
   { path: '/event-active/:id', component: eventsactive, meta: { requiresAuth: true } },
+  { path: "/techdocs", component: techdocs, meta: { hideNavbar: true } }
 ];
 
 const router = createRouter({
